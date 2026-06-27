@@ -4,7 +4,6 @@ class AverageMeter:
     """
     Computes and stores the current value and running average.
     """
-
     def __init__(self) -> None:
         self.reset()
 
