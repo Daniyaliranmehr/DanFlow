@@ -1,7 +1,7 @@
 import torch
 
 
-def Adaptive_loss(outputs, targets, c=1., alpha=1.):
+def adaptive_loss(outputs, targets, c=1., alpha=1.):
     if alpha == 2:  # Quadratic
         loss = 0.5 * ((outputs - targets) / c) ** 2
         return torch.mean(loss)

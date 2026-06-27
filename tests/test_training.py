@@ -7,5 +7,5 @@ def test_average_meter():
 
     meter.update(2)
     meter.update(4)
-
+    
     assert abs(meter.avg - 3) < 1e-6
