@@ -21,3 +21,13 @@ def test_adaptive_loss_cauchy():
     expected = torch.mean(torch.log(0.5 * ((outputs - targets) ** 2) + 1))
 
     assert torch.isclose(loss, expected)
+
+def test_adaptive_loss_welsch():
+    outputs = torch.tensor([2.0, 4.0])
+    targets = torch.tensor([1.0, 2.0])
+
+    loss = adaptive_loss(outputs, targets, alpha=-torch.inf)
+
+    expected = torch.mean(1 - torch.exp(-0.5 * ((outputs - targets) ** 2)))
+
+    assert torch.isclose(loss, expected)
