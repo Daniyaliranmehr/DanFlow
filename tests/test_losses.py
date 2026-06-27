@@ -31,3 +31,17 @@ def test_adaptive_loss_welsch():
     expected = torch.mean(1 - torch.exp(-0.5 * ((outputs - targets) ** 2)))
 
     assert torch.isclose(loss, expected)
+
+def test_adaptive_loss_general():
+    outputs = torch.tensor([2.0, 4.0])
+    targets = torch.tensor([1.0, 2.0])
+
+    alpha = 1.0
+
+    loss = adaptive_loss(outputs, targets, alpha=alpha)
+
+    expected = torch.mean((abs(alpha - 2) / alpha)
+                           * ((((outputs - targets) ** 2) / abs(alpha - 2) + 1)
+                               ** (alpha / 2) - 1))
+
+    assert torch.isclose(loss, expected)
