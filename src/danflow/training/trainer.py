@@ -1,12 +1,19 @@
 # training/trainer.py
 
+from pyexpat import model
+
 import torch.nn as nn
+import torch
+from torch.optim import Optimizer
+
+from typing import Optional
 
 
 class AverageMeter:
     """
     Computes and stores the current value and running average.
     """
+
     def __init__(self) -> None:
         self.reset()
 
@@ -27,7 +34,12 @@ class Model(nn.Module):
     """
     Define the Model Architecture
     """
-    def __init__(self, in_features, h1, h2, out_features):
+
+    def __init__(self, 
+                 in_features: int, 
+                 h1: int, 
+                 h2: int, 
+                 out_features: int) -> None:
         super(Model, self).__init__()
 
         self.model = nn.Sequential(
@@ -38,5 +50,62 @@ class Model(nn.Module):
             nn.Linear(h2, out_features)
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.model(x)
+    
+
+class Trainer():
+    """
+    Training and validating models
+    """
+
+    def __init__(self, 
+                 model: nn.Module, 
+                 optimizer: Optimizer, 
+                 loss_fn,
+                 metric: Optional[object] = None
+                 ) -> None:
+
+        self.model = model
+        self.optimizer = optimizer
+        self.loss_fn = loss_fn
+        self.metric = metric
+
+        self.loss_train_history = []
+        self.loss_valid_history = []
+
+        self.metric_train_history = []
+        self.metric_valid_history = []
+
+
+    def train_epoch(
+            self,
+            train_loader: torch.utils.data.DataLoader,
+            ) -> tuple[float, float | None]:
+        
+        self.model.train()
+
+        loss_meter = AverageMeter()
+
+        if self.metric is not None:
+            self.metric.reset()
+
+        for inputs, targets in train_loader:
+            outputs = self.model(inputs)
+
+            loss = self.loss_fn(outputs, targets)
+
+            self.optimzier.zero_grad()
+            loss.backward()
+            self.optimizer.step()
+
+            loss_meter.update(loss.item())
+
+            if self.metric is not None:
+                self.metric.update(outputs, targets)
+
+            metric_value = None
+            if self.metric is not None:
+                metric_value = self.metric.compute().item()
+
+            return loss.meter.avg, metric_value

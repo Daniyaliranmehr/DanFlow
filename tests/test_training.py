@@ -24,3 +24,5 @@ def test_model():
 
     assert isinstance(output, torch.Tensor)
     assert output.shape == (10, 1)
+
+
