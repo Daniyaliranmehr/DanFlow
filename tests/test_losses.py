@@ -70,3 +70,4 @@ def test_log_cosh_loss():
     expected = torch.mean(torch.log(torch.cosh(torch.zeros(2))))
 
     assert torch.isclose(loss, expected)
+

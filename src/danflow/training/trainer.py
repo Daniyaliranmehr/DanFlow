@@ -1,5 +1,8 @@
 # training/trainer.py
 
+import torch.nn as nn
+
+
 class AverageMeter:
     """
     Computes and stores the current value and running average.
@@ -18,3 +21,22 @@ class AverageMeter:
         self.sum += val * n
         self.count += n
         self.avg = self.sum / self.count
+
+
+class Model(nn.Module):
+    """
+    Define the Model Architecture
+    """
+    def __init__(self, in_features, h1, h2, out_features):
+        super(Model, self).__init__()
+
+        self.model = nn.Sequential(
+            nn.Linear(in_features, h1),
+            nn.ReLU(),
+            nn.Linear(h1, h2),
+            nn.ReLU(),
+            nn.Linear(h2, out_features)
+        )
+
+    def forward(self, x):
+        return self.model(x)
