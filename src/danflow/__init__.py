@@ -1,3 +1,6 @@
 # danflow/__init__.py
 
-from .losses import adaptive_loss
+from .losses import (
+    adaptive_loss,
+    log_cosh_loss
+)

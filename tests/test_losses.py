@@ -1,4 +1,7 @@
-from danflow.losses import adaptive_loss
+from danflow.losses import (
+    adaptive_loss,
+    log_cosh_loss
+)
 import torch
 
 
@@ -58,3 +61,12 @@ def test_adaptive_loss_general():
 
     assert torch.isclose(loss, expected)
 
+
+def test_log_cosh_loss():
+    outputs = torch.tensor([1.0, 2.0])
+    targets = torch.tensor([1.0, 2.0])
+
+    loss = log_cosh_loss(outputs, targets)
+    expected = torch.mean(torch.log(torch.cosh(torch.zeros(2))))
+
+    assert torch.isclose(loss, expected)
