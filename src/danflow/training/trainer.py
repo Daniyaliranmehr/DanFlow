@@ -93,7 +93,7 @@ class Trainer():
 
             loss = self.loss_fn(outputs, targets)
 
-            self.optimzier.zero_grad()
+            self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.zero_grad()
 

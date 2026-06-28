@@ -1,15 +1,17 @@
 # test/test_training.py
 
+from h11 import Data
+
 from danflow.training import (
     AverageMeter,
     Model,
     Trainer
 )
 import torch
-from torch import nn
+from torch import mode, nn
 from torch.optim import SGD
 from torch.utils.data import DataLoader, TensorDataset
-
+from torchmetrics import R2Score
 
 def test_average_meter():
     meter = AverageMeter()
@@ -40,9 +42,30 @@ def test_train_epoch_returns_loss_and_metric():
     targets = torch.randn(8, 1)
 
     loader = DataLoader(TensorDataset(inputs, targets), batch_size = 4)
-    trainer = Trainer(model=model, optimizer=optimizer, loss=loss_fn)
+    trainer = Trainer(model=model, optimizer=optimizer, loss_fn=loss_fn)
 
     loss, metric = trainer.train_epoch(loader)
 
     assert isinstance(loss, float)
     assert metric is None
+
+
+def test_train_epoch_with_metric():
+    model = nn.Linear(2, 1)
+
+    optimizer = SGD(model.parameters(), lr=0.01)
+    loss_fn = nn.MSELoss()
+    metric = R2Score()
+
+    inputs = torch.randn(8, 2)
+    targets = torch.randn(8, 1)
+
+    loader = DataLoader(TensorDataset(inputs, targets), batch_size=4)
+
+    trainer = Trainer(model=model, optimizer=optimizer, loss_fn=loss_fn, metric=metric)
+
+    loss, r2 = trainer.train_epoch(loader)
+
+    assert isinstance(loss, float)
+    assert isinstance(r2, float)
+
