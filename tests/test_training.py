@@ -107,3 +107,23 @@ def test_validate_epoch_returns_loss_and_none_metric():
 
     assert isinstance(loss, float)
     assert metric is None
+
+
+def test_validate_epoch_returns_loss_and_metric():
+    model = nn.Linear(2, 1)
+
+    optimizer = SGD(model.parameters(), lr=0.01)
+    loss_fn = nn.MSELoss()
+    metric = R2Score()
+
+    inputs = torch.randn(8, 2)
+    targets = torch.randn(8, 1)
+
+    loader = DataLoader(TensorDataset(inputs, targets), batch_size=4,)
+
+    trainer = Trainer(model=model, optimizer=optimizer, loss_fn=loss_fn, metric=metric)
+
+    loss, r2 = trainer.validate_epoch(loader)
+
+    assert isinstance(loss, float)
+    assert isinstance(r2, float)
