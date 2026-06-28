@@ -26,35 +26,11 @@ class AverageMeter:
         self.sum += val * n
         self.count += n
         self.avg = self.sum / self.count
-
-
-class Model(nn.Module):
-    """
-    Define the Model Architecture
-    """
-
-    def __init__(self, 
-                 in_features: int, 
-                 h1: int, 
-                 h2: int, 
-                 out_features: int) -> None:
-        super(Model, self).__init__()
-
-        self.model = nn.Sequential(
-            nn.Linear(in_features, h1),
-            nn.ReLU(),
-            nn.Linear(h1, h2),
-            nn.ReLU(),
-            nn.Linear(h2, out_features)
-        )
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.model(x)
     
 
 class Trainer:
     """
-    Training and validating models
+    Train and validate models
     """
 
     def __init__(self, 
@@ -63,6 +39,9 @@ class Trainer:
                  loss_fn,
                  metric: Optional[object] = None
                  ) -> None:
+        """
+        Train the model for one epoch
+        """
 
         self.model = model
         self.optimizer = optimizer
@@ -112,7 +91,10 @@ class Trainer:
     def validate_epoch(self,
                        valid_loader:  torch.utils.data.DataLoader,
             ) -> tuple[float, float | None]:
-        
+        """
+        Evaluate the model for one epoch
+        """
+
         self.model.eval()
         
         loss_meter = AverageMeter()

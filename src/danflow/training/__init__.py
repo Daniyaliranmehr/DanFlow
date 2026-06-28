@@ -2,6 +2,5 @@
 
 from .trainer import (
     AverageMeter,
-    Model,
     Trainer
 )

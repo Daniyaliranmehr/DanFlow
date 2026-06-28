@@ -4,7 +4,6 @@ from h11 import Data
 
 from danflow.training import (
     AverageMeter,
-    Model,
     Trainer
 )
 import torch
@@ -21,16 +20,6 @@ def test_average_meter():
     meter.update(4)
 
     assert abs(meter.avg - 3) < 1e-6
-
-
-def test_model():
-    model = Model(in_features=4, h1=8, h2=6, out_features=1)
-
-    x = torch.randn(10, 4) # batch_size=10 & features=4
-    output = model(x)
-
-    assert isinstance(output, torch.Tensor)
-    assert output.shape == (10, 1)
 
 
 def test_train_epoch_returns_loss_and_none_metric():
@@ -185,3 +174,4 @@ def test_validate_epoch_does_not_update_model_parameters():
     after = model.weight.detach()
 
     assert torch.equal(before, after)
+
