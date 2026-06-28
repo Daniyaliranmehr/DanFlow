@@ -1,8 +1,6 @@
 # training/trainer.py
 
-from pyexpat import model
-
-import torch.nn as nn
+from torch import nn
 import torch
 from torch.optim import Optimizer
 
@@ -97,7 +95,7 @@ class Trainer():
 
             self.optimzier.zero_grad()
             loss.backward()
-            self.optimizer.step()
+            self.optimizer.zero_grad()
 
             loss_meter.update(loss.item())
 
@@ -108,4 +106,4 @@ class Trainer():
             if self.metric is not None:
                 metric_value = self.metric.compute().item()
 
-            return loss.meter.avg, metric_value
+        return loss_meter.avg, metric_value
