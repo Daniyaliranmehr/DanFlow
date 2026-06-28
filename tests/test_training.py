@@ -13,6 +13,7 @@ from torch.optim import SGD
 from torch.utils.data import DataLoader, TensorDataset
 from torchmetrics import R2Score
 
+
 def test_average_meter():
     meter = AverageMeter()
 
@@ -41,8 +42,13 @@ def test_train_epoch_returns_loss_and_none_metric():
     inputs = torch.randn(8, 2)
     targets = torch.randn(8, 1)
 
-    loader = DataLoader(TensorDataset(inputs, targets), batch_size = 4)
-    trainer = Trainer(model=model, optimizer=optimizer, loss_fn=loss_fn)
+    loader = DataLoader(TensorDataset(inputs, targets), 
+                        batch_size=4
+    )
+    trainer = Trainer(model=model, 
+                      optimizer=optimizer, 
+                      loss_fn=loss_fn
+    )
 
     loss, metric = trainer.train_epoch(loader)
 
@@ -60,8 +66,15 @@ def test_train_epoch_with_metric():
     inputs = torch.randn(8, 2)
     targets = torch.randn(8, 1)
 
-    loader = DataLoader(TensorDataset(inputs, targets), batch_size=4)
-    trainer = Trainer(model=model, optimizer=optimizer, loss_fn=loss_fn, metric=metric)
+    loader = DataLoader(
+        TensorDataset(inputs, targets),
+        batch_size=4
+    )
+    trainer = Trainer(model=model, 
+                      optimizer=optimizer, 
+                      loss_fn=loss_fn, 
+                      metric=metric
+    )
 
     loss, r2 = trainer.train_epoch(loader)
 
@@ -78,11 +91,16 @@ def test_train_epoch_updates_model_parameters():
     inputs = torch.randn(8, 2)
     targets = torch.randn(8, 1)
 
-    loader = DataLoader(TensorDataset(inputs, targets), batch_size=4)
+    loader = DataLoader(TensorDataset(inputs, targets), 
+                        batch_size=4
+    )
 
     before = model.weight.detach().clone()
 
-    trainer = Trainer(model=model, optimizer=optimizer, loss_fn=loss_fn)
+    trainer = Trainer(model=model, 
+                      optimizer=optimizer, 
+                      loss_fn=loss_fn
+    )
 
     trainer.train_epoch(loader)
 
@@ -91,7 +109,7 @@ def test_train_epoch_updates_model_parameters():
     assert not torch.equal(before, after)
 
 
-def test_validate_epoch_returns_loss_and_none_metric():
+def test_validate_epoch_with_metric():
     model = nn.Linear(2, 1)
 
     optimizer = SGD(model.parameters(), lr=0.01)
@@ -100,8 +118,13 @@ def test_validate_epoch_returns_loss_and_none_metric():
     inputs = torch.randn(8, 2)
     targets = torch.randn(8, 1)
 
-    loader = DataLoader(TensorDataset(inputs, targets), batch_size=4)
-    trainer = Trainer(model=model, optimizer=optimizer, loss_fn=loss_fn)
+    loader = DataLoader(TensorDataset(inputs, targets), 
+                        batch_size=4
+    )
+    trainer = Trainer(model=model, 
+                      optimizer=optimizer, 
+                      loss_fn=loss_fn
+    )
 
     loss, metric = trainer.validate_epoch(loader)
 
@@ -119,11 +142,46 @@ def test_validate_epoch_returns_loss_and_metric():
     inputs = torch.randn(8, 2)
     targets = torch.randn(8, 1)
 
-    loader = DataLoader(TensorDataset(inputs, targets), batch_size=4,)
+    loader = DataLoader(TensorDataset(inputs, targets), 
+                        batch_size=4
+    )
 
-    trainer = Trainer(model=model, optimizer=optimizer, loss_fn=loss_fn, metric=metric)
+    trainer = Trainer(model=model, 
+                      optimizer=optimizer, 
+                      loss_fn=loss_fn, 
+                      metric=metric
+    )
 
     loss, r2 = trainer.validate_epoch(loader)
 
     assert isinstance(loss, float)
     assert isinstance(r2, float)
+
+
+def test_validate_epoch_does_not_update_model_parameters():
+    model = nn.Linear(2, 1)
+
+    optimizer = SGD(model.parameters(), lr=0.01)
+    loss_fn = nn.MSELoss()
+
+    inputs = torch.randn(8, 2)
+    targets = torch.randn(8, 1)
+
+    loader = DataLoader(
+        TensorDataset(inputs, targets),
+        batch_size=4
+    )
+
+    before = model.weight.detach().clone()
+
+    trainer = Trainer(
+        model=model,
+        optimizer=optimizer,
+        loss_fn=loss_fn
+    )
+
+    trainer.validate_epoch(loader)
+
+    after = model.weight.detach()
+
+    assert torch.equal(before, after)
