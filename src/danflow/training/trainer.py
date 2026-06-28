@@ -95,7 +95,7 @@ class Trainer():
 
             self.optimizer.zero_grad()
             loss.backward()
-            self.optimizer.zero_grad()
+            self.optimizer.step()
 
             loss_meter.update(loss.item())
 

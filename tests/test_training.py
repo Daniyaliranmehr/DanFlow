@@ -69,3 +69,24 @@ def test_train_epoch_with_metric():
     assert isinstance(loss, float)
     assert isinstance(r2, float)
 
+
+def test_train_epoch_updates_model_parameters():
+    model = nn.Linear(2, 1)
+
+    optimizer = SGD(model.parameters(), lr=0.01)
+    loss_fn = nn.MSELoss()
+
+    inputs = torch.randn(8, 2)
+    targets = torch.randn(8, 1)
+
+    loader = DataLoader(TensorDataset(inputs, targets), batch_size=4)
+
+    before = model.weight.detach().clone()
+
+    trainer = Trainer(model=model, optimizer=optimizer, loss_fn=loss_fn)
+
+    trainer.train_epoch(loader)
+
+    after = model.weight.detach()
+
+    assert not torch.equal(before, after)
