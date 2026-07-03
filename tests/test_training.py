@@ -175,3 +175,26 @@ def test_validate_epoch_does_not_update_model_parameters():
 
     assert torch.equal(before, after)
 
+
+def test_fit_runs_and_update_history():
+    model = nn.Linear(2, 1)
+    optimizer = SGD(model.parameters(), lr=0.01)
+    loss_fn = nn.MSELoss()
+
+    inputs = torch.randn(8, 2)
+    targets = torch.randn(8, 1)
+
+    train_loader = DataLoader(
+        TensorDataset(inputs, targets),
+        batch_size=4,
+        )
+    valid_loader = DataLoader(
+        TensorDataset(inputs, targets), 
+        batch_size=4,
+        )
+    
+    trainer = Trainer(model, optimizer, loss_fn)
+    trainer.fit(train_loader, valid_loader, epochs=2)
+
+    assert len(trainer.loss_train_history) == 2
+    assert len(trainer.loss_valid_history) == 2
