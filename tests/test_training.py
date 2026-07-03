@@ -193,8 +193,15 @@ def test_fit_runs_and_update_history():
         batch_size=4,
         )
     
-    trainer = Trainer(model, optimizer, loss_fn)
+    metric = R2Score()
+    
+    trainer = Trainer(model, optimizer, loss_fn, metric=metric)
     trainer.fit(train_loader, valid_loader, epochs=2)
 
+    # loss history checks
     assert len(trainer.loss_train_history) == 2
     assert len(trainer.loss_valid_history) == 2
+
+    # metric history checks
+    assert len(trainer.metric_train_history) == 2
+    assert len(trainer.metric_valid_history) == 2
