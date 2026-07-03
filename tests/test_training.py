@@ -11,6 +11,7 @@ from torch import mode, nn
 from torch.optim import SGD
 from torch.utils.data import DataLoader, TensorDataset
 from torchmetrics import R2Score
+from unittest.mock import patch
 
 
 def test_average_meter():
@@ -205,3 +206,27 @@ def test_fit_runs_and_update_history():
     # metric history checks
     assert len(trainer.metric_train_history) == 2
     assert len(trainer.metric_valid_history) == 2
+
+
+def test_fit_saves_model_when_save_best_enabled():
+    model = nn.Linear(2, 1)
+    optimizer = SGD(model.parameters(), lr=0.01)
+    loss_fn = nn.MSELoss()
+
+    inputs = torch.randn(8, 2)
+    targets = torch.randn(8, 1)
+
+    train_loader = DataLoader(TensorDataset(inputs, targets), batch_size=4)
+    valid_loader = DataLoader(TensorDataset(inputs, targets), batch_size=4)
+
+    trainer = Trainer(model, optimizer, loss_fn)
+
+    with patch("torch.save") as mock_save:
+        trainer.fit(
+            train_loader=train_loader,
+            valid_loader=valid_loader,
+            epochs=2,
+            save_best=True,
+        )
+
+        assert mock_save.called
