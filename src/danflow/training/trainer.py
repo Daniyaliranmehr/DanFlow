@@ -3,10 +3,10 @@
 from torch import nn
 import torch
 from torch.optim import Optimizer
-
 from typing import Optional
-
 from tqdm.auto import tqdm
+from rich.table import Table
+from rich.console import Console
 
 
 class AverageMeter:
@@ -56,11 +56,12 @@ class Trainer:
         self.metric_train_history = []
         self.metric_valid_history = []
 
+        self.console = Console()
+
 
     def train_epoch(
             self,
             train_loader: torch.utils.data.DataLoader,
-            progress_bar: bool = False
             ) -> tuple[float, float | None]:
         
         self.model.train()
@@ -70,16 +71,8 @@ class Trainer:
         if self.metric is not None:
             self.metric.reset()
         
-        iterator = train_loader
-        if progress_bar:
-            iterator = tqdm(
-                train_loader,
-                desc="Training",
-                leave=False,
-            )
+        for inputs, targets in train_loader:
 
-
-        for inputs, targets in iterator:
             outputs = self.model(inputs)
 
             loss = self.loss_fn(outputs, targets)
@@ -133,14 +126,14 @@ class Trainer:
 
 
     def fit(
-            self,
-            train_loader: torch.utils.data.DataLoader,
-            valid_loader: torch.utils.data.DataLoader,
-            epochs: int = 100,
-            save_best: bool = False,
-            checkpoint_path: str = "best_model.pth",
+        self,
+        train_loader: torch.utils.data.DataLoader,
+        valid_loader: torch.utils.data.DataLoader,
+        epochs: int = 100,
+        save_best: bool = False,
+        checkpoint_path: str = "best_model.pth",
     ) -> dict:
-        
+
         best_valid_loss = float("inf")
         best_loss_epoch = 0
 
@@ -149,16 +142,13 @@ class Trainer:
 
         epoch_bar = tqdm(
             range(1, epochs + 1),
-            desc="Epochs",
-            unit="epoch,"
+            desc="Epoch",
+            unit="epoch",
         )
 
         for epoch in epoch_bar:
-            
-            train_loss, train_metric = self.train_epoch(
-                train_loader,
-                progress_bar=True,
-            )
+
+            train_loss, train_metric = self.train_epoch(train_loader)
 
             valid_loss, valid_metric = self.validate_epoch(valid_loader)
 
@@ -169,24 +159,21 @@ class Trainer:
                 self.metric_train_history.append(train_metric)
                 self.metric_valid_history.append(valid_metric)
 
-            if save_best:
+            if save_best and valid_loss < best_valid_loss:
+                best_valid_loss = valid_loss
+                best_loss_epoch = epoch
 
-                if valid_loss < best_valid_loss:
-                    best_valid_loss = valid_loss
-                    best_loss_epoch = epoch
+                torch.save(
+                    {
+                        "model_state_dict": self.model.state_dict(),
+                        "optimizer_state_dict": self.optimizer.state_dict(),
+                        "epoch": epoch,
+                        "best_valid_loss": best_valid_loss,
+                    },
+                    checkpoint_path,
+                )
 
-                    torch.save(
-                        {
-                            "model_state_dict": self.model.state_dict(),
-                            "optimizer_state_dict": self.optimizer.state_dict(),
-                            "epoch": epoch,
-                            "best_valid_loss": best_valid_loss,
-                        },
-                        checkpoint_path,
-                    )
-
-
-            if(
+            if (
                 self.metric is not None
                 and valid_metric is not None
                 and valid_metric > best_valid_metric
@@ -194,21 +181,49 @@ class Trainer:
                 best_valid_metric = valid_metric
                 best_metric_epoch = epoch
 
-            postfix = {
-                "Train Loss": f"{train_loss:.4f}",
-                "Valid Loss": f"{valid_loss:.4f}",
-                "Best Loss": f"{best_valid_loss:.4f}",
-            }
+            postfix = (
+                f"Train Loss: {train_loss:.4f} | "
+                f"Valid Loss: {valid_loss:.4f} | "
+                f"Best Valid Loss: {best_valid_loss:.4f} (E{best_loss_epoch})"
+            )
 
             if self.metric is not None:
-                postfix.update({
-                    "Train Metric": f"{train_metric:.4f}",
-                    "Valid Metric": f"{valid_metric:.4f}",
-                    "Best Metric": f"{best_valid_metric:.4f}",
-                })
+                postfix += (
+                    f" | Train Metric: {train_metric:.4f}"
+                    f" | Valid Metric: {valid_metric:.4f}"
+                    f" | Best Valid Metric: {best_valid_metric:.4f} (E{best_metric_epoch})"
+                )
 
-            epoch_bar.set_postfix(postfix)
+            epoch_bar.set_postfix_str(postfix)
 
+            # -------------------------
+            # Persistent table
+            # -------------------------
+
+            table = Table(
+                title=f"Epoch {epoch}",
+                show_header=True,
+                show_lines=False,
+            )
+
+            table.add_column("Metric")
+            table.add_column("Train", justify="right")
+            table.add_column("Validation", justify="right")
+
+            table.add_row(
+                "Loss",
+                f"{train_loss:.4f}",
+                f"{valid_loss:.4f}",
+            )
+
+            if self.metric is not None:
+                table.add_row(
+                    "Metric",
+                    f"{train_metric:.4f}",
+                    f"{valid_metric:.4f}",
+                )
+
+            self.console.print(table)
 
         return {
             "train_loss": self.loss_train_history,
@@ -220,4 +235,4 @@ class Trainer:
             "best_valid_metric": best_valid_metric,
             "best_metric_epoch": best_metric_epoch,
         }
-            
+    
