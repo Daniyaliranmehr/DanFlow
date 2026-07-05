@@ -98,7 +98,7 @@ class Trainer:
         -------
         tuple[float, float | None]
             Average training loss and the computed metric value for the
-            epoch. the metrci value is 'None' if no evaluation metric is provided.
+            epoch. The metric value is ``None`` if no evaluation metric is provided.
 
         Notes
         -----
@@ -137,6 +137,26 @@ class Trainer:
     def validate_epoch(self,
                        valid_loader:  torch.utils.data.DataLoader,
             ) -> tuple[float, float | None]:
+        """
+        Evaluate the model for a single epoch.
+
+        The model is evaluated in inference mode without updating its parameters.
+
+        Parameters
+        ----------
+        valid_loader
+            DataLoader providing the validation dataset.
+
+        Returns
+        -------
+        tuple[float, float | None]
+            Average validation loss and the computed metric value for the epoch.
+            The metric value is ``None`` if no evaluation metric is provided.
+
+        Notes
+        -----
+        Gradient computation is disabled during validation.
+        """
 
         self.model.eval()
         
