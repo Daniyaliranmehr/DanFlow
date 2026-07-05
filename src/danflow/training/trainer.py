@@ -32,7 +32,11 @@ class AverageMeter:
 
 class Trainer:
     """
-    Train and validate models
+    Train and validate PyTorch models.
+
+    The Trainer class manages the training workflow, including model
+    training, validation, metric computation, history tracking, and
+    optional checkpoint saving.
     """
 
     def __init__(self, 
