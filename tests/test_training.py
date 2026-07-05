@@ -1,13 +1,15 @@
 # test/test_training.py
 
+from bs4 import ResultSet
 from h11 import Data
 
 from danflow.training import (
     AverageMeter,
-    Trainer
+    Trainer,
+    Evaluator,
 )
 import torch
-from torch import mode, nn
+from torch import nn
 from torch.optim import SGD
 from torch.utils.data import DataLoader, TensorDataset
 from torchmetrics import R2Score
@@ -230,3 +232,25 @@ def test_fit_saves_model_when_save_best_enabled():
         )
 
         assert mock_save.called
+
+
+def test_evaluator_returns_loss_and_metric():
+    model = nn.Linear(2, 1)
+
+    x = torch.randn(16, 2)
+    y = torch.randn(16, 1)
+
+    evaluator = Evaluator(
+        model=model,
+        loss_fn=nn.MSELoss(),
+        metric=R2Score()
+    )
+
+    results = evaluator.test(x, y)
+
+    assert "Loss" in results
+    assert "Metric" in results
+
+    assert isinstance(results["Loss"], float)
+    assert isinstance(results["Metric"], float)
+    

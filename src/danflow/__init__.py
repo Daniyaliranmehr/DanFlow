@@ -6,5 +6,6 @@ from .losses import (
 )
 
 from .training import (
-    Trainer
+    Trainer,
+    Evaluator,
 )
