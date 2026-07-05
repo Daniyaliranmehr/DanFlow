@@ -334,6 +334,14 @@ class Trainer:
 
 
 class Evaluator:
+    """
+    Evaluate a trained PyTorch model on test data.
+
+    The Evaluator class provides a simple interface for running inference
+    on a dataset and computing optional evaluation metrics and loss
+    without affecting model parameters or training state.
+    """
+    
     def __init__(
         self,
         model: nn.Module,
