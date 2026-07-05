@@ -263,10 +263,27 @@ def test_evaluator_returns_only_loss():
 
     evaluator = Evaluator(
         model=model,
-        loss_fn=nn.MSELoss(),
+        loss_fn=nn.MSELoss()
     )
 
     results = evaluator.test(x, y)
 
     assert "Loss" in results
     assert "Metric" not in results
+
+
+def test_evaluator_returns_only_metric():
+    model = nn.Linear(2, 1)
+
+    x = torch.randn(16, 2)
+    y = torch.randn(16, 1)
+
+    evaluator = Evaluator(
+        model=model,
+        metric=R2Score()
+    )
+
+    results = evaluator.test(x, y)
+
+    assert "Metric" in results
+    assert "Loss" not in results
