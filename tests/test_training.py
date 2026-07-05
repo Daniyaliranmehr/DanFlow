@@ -300,3 +300,20 @@ def test_evaluator_empty_dict():
     results = evaluator.test(x, y)
 
     assert results == {}
+
+
+def test_evaluator_restores_training_mode():
+    model = nn.Linear(2, 1)
+    model.train()
+
+    x = torch.randn(16, 2)
+    y = torch.randn(16, 1)
+
+    evaluator = Evaluator(
+        model=model,
+        loss_fn=nn.MSELoss(),
+    )
+
+    evaluator.test(x, y)
+
+    assert model.training
