@@ -45,6 +45,24 @@ class Trainer:
                  loss_fn,
                  metric: Optional[object] = None
                  ) -> None:
+        """
+        Initialize a Trainer instance.
+
+        Parameters
+        ----------
+        model
+            Model to be trained and evaluated.
+
+        optimizer
+            Optimizer responsible for updating the model parameters.
+
+        loss_fn
+            Loss function used to optimize the model.
+
+        metric
+            Optional evaluation metric computed after each training
+            and validation epoch.    
+        """
 
         self.model = model
         self.optimizer = optimizer
