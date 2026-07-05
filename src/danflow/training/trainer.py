@@ -191,6 +191,44 @@ class Trainer:
         save_best: bool = False,
         checkpoint_path: str = "best_model.pth",
     ) -> dict:
+    
+        """
+        Train the model for multiple epochs.
+
+        This method performs the complete training workflow by alternating
+        between training and validation epochs, recording the training
+        history, tracking the best validation performance, and optionally
+        saving the best model checkpoint.
+
+        Parameters
+        ----------
+        train_loader
+            DataLoader providing the training dataset.
+
+        valid_loader
+            DataLoader providing the validation dataset.
+
+        epochs
+            Number of training epochs.
+
+        save_best
+            Whether to save the model checkpoint corresponding to the
+            lowest validation loss.
+
+        checkpoint_path
+            Path where the best model checkpoint will be saved.
+
+        Returns
+        -------
+        dict
+            Dictionary containing the training history, validation history,
+            and the best validation results obtained during training.
+
+        Notes
+        -----
+        The saved checkpoint includes the model state, optimizer state,
+        training epoch, and the best validation loss.
+        """
 
         best_valid_loss = float("inf")
         best_loss_epoch = 0
@@ -296,10 +334,6 @@ class Trainer:
 
 
 class Evaluator:
-    """
-    Evaluate a model on test data
-    """
-
     def __init__(
         self,
         model: nn.Module,
