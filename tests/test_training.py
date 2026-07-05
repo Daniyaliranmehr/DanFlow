@@ -317,3 +317,20 @@ def test_evaluator_restores_training_mode():
     evaluator.test(x, y)
 
     assert model.training
+
+
+def test_evaluator_preserves_eval_mode():
+    model = nn.Linear(2, 1)
+    model.eval()
+
+    x = torch.randn(16, 2)
+    y = torch.randn(16, 1)
+
+    evaluator = Evaluator(
+        model=model,
+        loss_fn=nn.MSELoss(),
+    )
+
+    evaluator.test(x, y)
+
+    assert not model.training
