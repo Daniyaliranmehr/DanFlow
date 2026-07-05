@@ -348,6 +348,23 @@ class Evaluator:
         loss_fn=None,
         metric: Optional[Callable] = None,
     ) -> None:
+        """
+        Initialize an Evaluator instance.
+
+        Parameters
+        ----------
+        model
+            Trained PyTorch model to evaluate.
+
+        loss_fn
+            Optional loss function used to compute test loss.
+            If None, loss is not computed.
+
+        metric
+            Optional callable metric function that takes
+            (y_pred, y_true) and returns a scalar or tensor.
+            If None, no metric is computed.
+        """
         
         self.model = model
         self.loss_fn = loss_fn
@@ -358,6 +375,33 @@ class Evaluator:
         x_test: torch.Tensor,
         y_test: torch.Tensor,
     ) -> dict[str, float]:
+        """
+        Run evaluation on test data.
+
+        The model is switched to evaluation mode and inference is
+        performed without gradient computation. The original training
+        state of the model is restored after evaluation.
+
+        Parameters
+        ----------
+        x_test
+            Input test features.
+
+        y_test
+            Ground-truth target values.
+
+        Returns
+        -------
+        dict[str, float]
+            Dictionary containing evaluation results. Possible keys:
+            - "Loss": computed test loss (if loss_fn is provided)
+            - "Metric": computed evaluation metric (if metric is provided)
+
+        Notes
+        -----
+        - No gradients are computed during evaluation.
+        - The model's original training/evaluation state is preserved.
+        """
     
         was_training = self.model.training
         self.model.eval()
