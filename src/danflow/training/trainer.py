@@ -3,7 +3,7 @@
 from torch import nn
 import torch
 from torch.optim import Optimizer
-from typing import Optional
+from typing import Optional, Callable
 from tqdm.auto import tqdm
 from rich.table import Table
 from rich.console import Console
@@ -41,9 +41,6 @@ class Trainer:
                  loss_fn,
                  metric: Optional[object] = None
                  ) -> None:
-        """
-        Train the model for one epoch
-        """
 
         self.model = model
         self.optimizer = optimizer
@@ -96,9 +93,6 @@ class Trainer:
     def validate_epoch(self,
                        valid_loader:  torch.utils.data.DataLoader,
             ) -> tuple[float, float | None]:
-        """
-        Evaluate the model for one epoch
-        """
 
         self.model.eval()
         
@@ -235,4 +229,51 @@ class Trainer:
             "best_valid_metric": best_valid_metric,
             "best_metric_epoch": best_metric_epoch,
         }
+
+
+class Evaluator:
+    """
+    Evaluate a model on test data
+    """
+
+    def __init__(
+        self,
+        model: nn.Module,
+        loss_fn=None,
+        metric: Optional[Callable] = None,
+    ) -> None:
+        
+        self.model = model
+        self.loss_fn = loss_fn
+        self.metric = metric
+
+    def test(
+        self,
+        x_test: torch.Tensor,
+        y_test: torch.Tensor,
+    ) -> dict[str, float]:
     
+        was_training = self.model.training
+        self.model.eval()
+
+        try:
+            with torch.no_grad():
+                y_pred = self.model(x_test)
+
+                results: dict[str, float] = {}
+
+                if self.metric is not None:
+                    value = self.metric(y_pred, y_test)
+                    results["Metric"] = (
+                        value.item() if torch.is_tensor(value) else float(value)
+                    )
+
+                if self.loss_fn is not None:
+                    results["Loss"] = self.loss_fn(y_pred, y_test).item()
+
+        finally:
+            if was_training:
+                self.model.train()
+
+        return results
+        
