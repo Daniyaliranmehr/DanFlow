@@ -253,4 +253,20 @@ def test_evaluator_returns_loss_and_metric():
 
     assert isinstance(results["Loss"], float)
     assert isinstance(results["Metric"], float)
-    
+
+
+def test_evaluator_returns_only_loss():
+    model = nn.Linear(2, 1)
+
+    x = torch.randn(16, 2)
+    y = torch.randn(16, 1)
+
+    evaluator = Evaluator(
+        model=model,
+        loss_fn=nn.MSELoss(),
+    )
+
+    results = evaluator.test(x, y)
+
+    assert "Loss" in results
+    assert "Metric" not in results
