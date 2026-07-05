@@ -287,3 +287,16 @@ def test_evaluator_returns_only_metric():
 
     assert "Metric" in results
     assert "Loss" not in results
+
+
+def test_evaluator_empty_dict():
+    model = nn.Linear(2, 1)
+
+    x = torch.randn(16, 2)
+    y = torch.randn(16, 1)
+
+    evaluator = Evaluator(model)
+
+    results = evaluator.test(x, y)
+
+    assert results == {}
