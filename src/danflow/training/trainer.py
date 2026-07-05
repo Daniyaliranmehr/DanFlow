@@ -83,6 +83,28 @@ class Trainer:
             train_loader: torch.utils.data.DataLoader,
             ) -> tuple[float, float | None]:
         
+        """
+        Train the model for a single epoch.
+
+        The model is switched to training mode and updated by performing
+        forward and backward passes over all batches in the training dataset.
+
+        Parameters
+        ----------
+        train_loader
+            DataLoader providing the training dataset.
+
+        Returns
+        -------
+        tuple[float, float | None]
+            Average training loss and the computed metric value for the
+            epoch. the metrci value is 'None' if no evaluation metric is provided.
+
+        Notes
+        -----
+        Model parameters are updated after every batch.
+        """
+        
         self.model.train()
 
         loss_meter = AverageMeter()
