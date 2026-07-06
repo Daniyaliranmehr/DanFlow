@@ -20,6 +20,11 @@ Built on top of PyTorch, it provides reusable components that simplify common wo
 - Compute loss and custom metrics
 - Preserve the model's training state during evaluation
 
+### Visualization
+
+- Visualize training and validation loss curves
+- Visualize optional training and validation metric curves
+
 > ⏳ More features coming soon...
 
 ## Installation
