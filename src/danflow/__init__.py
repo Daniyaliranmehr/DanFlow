@@ -2,10 +2,14 @@
 
 from .losses import (
     adaptive_loss,
-    log_cosh_loss
+    log_cosh_loss,
 )
 
 from .training import (
     Trainer,
     Evaluator,
+)
+
+from .visualization import (
+    plot_training_history,
 )

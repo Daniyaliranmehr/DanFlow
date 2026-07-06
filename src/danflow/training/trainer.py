@@ -294,9 +294,9 @@ class Trainer:
 
             epoch_bar.set_postfix_str(postfix)
 
-            # -------------------------
-            # Persistent table
-            # -------------------------
+            # ===================
+            # Epoch Summary Table
+            # ===================
 
             table = Table(
                 title=f"Epoch {epoch}",
