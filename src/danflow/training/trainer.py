@@ -69,6 +69,8 @@ class Trainer:
         self.loss_fn = loss_fn
         self.metric = metric
 
+        self.metric_name = metric.__class__.__name__ if metric is not None else None
+
         self.loss_train_history = []
         self.loss_valid_history = []
 
@@ -285,9 +287,9 @@ class Trainer:
 
             if self.metric is not None:
                 postfix += (
-                    f" | Train Metric: {train_metric:.4f}"
-                    f" | Valid Metric: {valid_metric:.4f}"
-                    f" | Best Valid Metric: {best_valid_metric:.4f} (E{best_metric_epoch})"
+                    f" | Train {self.metric_name}: {train_metric:.4f}"
+                    f" | Valid {self.metric_name}: {valid_metric:.4f}"
+                    f" | Best Valid {self.metric_name}: {best_valid_metric:.4f} (E{best_metric_epoch})"
                 )
 
             epoch_bar.set_postfix_str(postfix)
@@ -302,7 +304,7 @@ class Trainer:
                 show_lines=False,
             )
 
-            table.add_column("Metric")
+            table.add_column("Measure")
             table.add_column("Train", justify="right")
             table.add_column("Validation", justify="right")
 
@@ -314,7 +316,7 @@ class Trainer:
 
             if self.metric is not None:
                 table.add_row(
-                    "Metric",
+                    self.metric_name,
                     f"{train_metric:.4f}",
                     f"{valid_metric:.4f}",
                 )
@@ -326,6 +328,7 @@ class Trainer:
             "valid_loss": self.loss_valid_history,
             "train_metric": self.metric_train_history,
             "valid_metric": self.metric_valid_history,
+            "metric_name": self.metric_name,
             "best_valid_loss": best_valid_loss,
             "best_loss_epoch": best_loss_epoch,
             "best_valid_metric": best_valid_metric,
