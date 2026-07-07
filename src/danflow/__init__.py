@@ -16,4 +16,5 @@ from .visualization import (
 
 from .data import (
     extract_zip,
+    load_csv
 )

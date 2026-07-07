@@ -2,4 +2,5 @@
 
 from .io import (
     extract_zip,
+    load_csv,
 )

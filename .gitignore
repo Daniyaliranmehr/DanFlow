@@ -6,3 +6,7 @@ __pycache__/
 
 # pytest cache (optional but fine)
 .pytest_cache/
+
+
+# a temporary notebook for testing
+temp.ipynb
