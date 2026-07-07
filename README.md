@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="assets/logo.png" alt="DanFlow Logo" width="220">
+</p>
 <h1 align="center">DanFlow</h1>
 
 DanFlow is a modular Python library for deep learning, data science, and visualization.
