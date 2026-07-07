@@ -1,5 +1,5 @@
 # visualization/__init__.py
 
-from .visualizer import (
+from .training import (
     plot_training_history,
 )
