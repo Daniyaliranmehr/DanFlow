@@ -10,6 +10,8 @@ def plot_training_history(
     history: Dict[str, List[float]],
     name: str,
     save_path: Optional[str | Path] = None,
+    show_best_loss: bool = False,
+    show_best_metric: bool = False,
     figsize: tuple[int, int] = (10, 5),
 ) -> None:
     """
@@ -64,6 +66,23 @@ def plot_training_history(
         label="Validation Loss",
     )
 
+    # -------------------------
+    # Mark best validation loss
+    # -------------------------
+    
+    if show_best_loss and "best_loss_epoch" in history:
+        idx = history["best_loss_epoch"] - 1
+
+        ax1.scatter(
+            idx + 1,
+            history["valid_loss"][idx],
+            color="#002677",
+            marker="*",
+            s=100,
+            zorder=5,
+            label="Best Validation Loss",
+        )
+
     ax1.set_xlabel("Epoch")
     ax1.set_ylabel("Loss")
     ax1.set_title(f"Training History - {name}")
@@ -98,6 +117,26 @@ def plot_training_history(
             label=f"Valid {metric_name}",
         )
 
+        # ---------------------------
+        # Mark best validation metric
+        # ---------------------------
+
+        if (
+            show_best_metric
+            and "best_metric_epoch" in history
+        ):
+            idx = history["best_metric_epoch"] - 1
+
+            ax2.scatter(
+                idx + 1,
+                history["valid_metric"][idx],
+                color="#340064",
+                marker="*",
+                s=100,
+                zorder=5,
+                label=f"Best {metric_name}",
+            )
+     
         ax2.set_ylabel(metric_name)
 
         lines2, labels2 = ax2.get_legend_handles_labels()
