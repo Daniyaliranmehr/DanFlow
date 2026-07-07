@@ -9,7 +9,13 @@ Built on top of PyTorch, it provides reusable components that simplify common wo
 
 ## Features
 
+### Data
+
+- Extract ZIP archives
+- Load CSV files into pandas DataFrames
+
 ### Training
+
 - Train PyTorch models with a simple interface
 - Support for custom loss functions
 - Support for custom optimizers
@@ -29,6 +35,7 @@ Built on top of PyTorch, it provides reusable components that simplify common wo
 - Visualize training and validation loss curves
 - Visualize optional training and validation metric curves
 - Optionally highlight the best validation loss and/or the best validation metric
+- Plot correlation heatmaps for numerical features
 
 > ⏳ More features coming soon...
 
