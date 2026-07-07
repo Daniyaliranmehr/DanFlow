@@ -12,6 +12,7 @@ from .training import (
 
 from .visualization import (
     plot_training_history,
+    plot_correlation_heatmap,
 )
 
 from .data import (
