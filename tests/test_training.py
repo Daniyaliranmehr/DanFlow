@@ -1,8 +1,5 @@
 # test/test_training.py
 
-from bs4 import ResultSet
-from h11 import Data
-
 from danflow.training import (
     AverageMeter,
     Trainer,
