@@ -1,5 +1,6 @@
 # data/io.py
 
+import pandas as pd
 from pathlib import Path
 import zipfile
 
@@ -22,3 +23,21 @@ def extract_zip(
 
     with zipfile.ZipFile(zip_path, "r") as zip_ref:
         zip_ref.extractall(output_path)
+
+
+def load_csv(path: str | Path) -> pd.DataFrame:
+    """
+    Load a CSV file into a pandas DataFrame.
+
+    Parameters
+    ----------
+    path
+        Path to the CSV file.
+
+    Returns
+    -------
+    pd.DataFrame
+        Loaded dataset.
+    """
+
+    return pd.read_csv(path)
