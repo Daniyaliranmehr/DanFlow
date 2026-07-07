@@ -5,6 +5,7 @@ DanFlow is a modular Python library for deep learning, data science, and visuali
 Built on top of PyTorch, it provides reusable components that simplify common workflows while remaining easy to use and extend.
 
 ## Features
+
 ### Training
 - Train PyTorch models with a simple interface
 - Support for custom loss functions
@@ -24,6 +25,7 @@ Built on top of PyTorch, it provides reusable components that simplify common wo
 
 - Visualize training and validation loss curves
 - Visualize optional training and validation metric curves
+- Optionally highlight the best validation loss and/or the best validation metric
 
 > ⏳ More features coming soon...
 
