@@ -13,3 +13,7 @@ from .training import (
 from .visualization import (
     plot_training_history,
 )
+
+from .data import (
+    extract_zip,
+)
