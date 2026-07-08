@@ -186,3 +186,4 @@ def plot_multi_histograms(
     plt.show()
 
     plt.close(fig)
+    

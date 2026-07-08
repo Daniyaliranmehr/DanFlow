@@ -36,6 +36,7 @@ Built on top of PyTorch, it provides reusable components that simplify common wo
 - Visualize optional training and validation metric curves
 - Optionally highlight the best validation loss and/or the best validation metric
 - Plot correlation heatmaps for numerical features
+- Plot histograms for one or multiple features
 
 > ⏳ More features coming soon...
 
