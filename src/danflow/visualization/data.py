@@ -161,7 +161,10 @@ def plot_multi_histograms(
         figsize=figsize,
     )
 
-    axes = axes.flatten()
+    if len(columns) == 1:
+        axes = [axes]
+    else:
+        axes = axes.flatten()
 
     for i, column in enumerate(columns):
         axes[i].hist(df[column], bins=bins)
@@ -233,3 +236,5 @@ def plot_boxplot(
     plt.show()
 
     plt.close(fig)
+
+
