@@ -8,4 +8,5 @@ from .data import (
     plot_correlation_heatmap,
     plot_histogram,
     plot_multi_histograms,
+    plot_boxplot,
 )

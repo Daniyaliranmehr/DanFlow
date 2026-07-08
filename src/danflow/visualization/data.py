@@ -186,4 +186,50 @@ def plot_multi_histograms(
     plt.show()
 
     plt.close(fig)
-    
+
+
+def plot_boxplot(
+    df: pd.DataFrame,
+    column: str,
+    save_path: Optional[str | Path] = None,
+    figsize: tuple[int, int] = (8, 5),
+) -> None:
+    """
+    Plot a boxplot for a selected feature and optionally save it.
+
+    Parameters
+    ----------
+    df
+        Input dataframe.
+
+    column
+        Name of the column to visualize.
+
+    save_path
+        Optional path where the figure will be saved.
+        If provided, the plot is saved before being displayed.
+        If None, the figure is not saved.
+
+    figsize
+        Size of the matplotlib figure.
+    """
+
+    fig, ax = plt.subplots(figsize=figsize)
+
+    df.boxplot(column=column, ax=ax)
+
+    ax.set_title(f"{column} Boxplot")
+    ax.set_ylabel(column)
+    ax.set_xticks([])
+
+    plt.tight_layout()
+
+    if save_path is not None:
+        save_path = Path(save_path)
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+
+    plt.show()
+
+    plt.close(fig)
