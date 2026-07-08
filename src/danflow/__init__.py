@@ -13,9 +13,10 @@ from .training import (
 from .visualization import (
     plot_training_history,
     plot_correlation_heatmap,
+    plot_histogram,
 )
 
 from .data import (
     extract_zip,
-    load_csv
+    load_csv,
 )

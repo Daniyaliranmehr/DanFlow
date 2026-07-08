@@ -27,11 +27,6 @@ def plot_correlation_heatmap(
 
     figsize
         Size of the matplotlib figure.
-
-    Returns
-    -------
-        This function does not return anything.
-        It only displays and/or saves the plot.
     """
 
     corr_matrix = df.corr(numeric_only=True)
@@ -53,6 +48,57 @@ def plot_correlation_heatmap(
     ax.set_yticklabels(corr_matrix.columns)
 
     ax.set_title("Correlation Heatmap")
+
+    plt.tight_layout()
+
+    if save_path is not None:
+        save_path = Path(save_path)
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+
+    plt.show()
+
+    plt.close(fig)
+
+
+def plot_histogram(
+    df: pd.DataFrame,
+    column: str,
+    bins: int = 50,
+    save_path: Optional[str | Path] = None,
+    figsize: tuple[int, int] = (8, 5),
+) -> None:
+    """
+    Plot the histogram of a selected feature.
+
+    Parameters
+    ----------
+    df
+        Input DataFrame.
+
+    column
+        Name of the column to visualize.
+
+    bins
+        Number of histogram bins.
+
+    save_path
+        Optional path where the figure will be saved.
+        If provided, the plot is saved to this location before being displayed.
+        If None, the figure is not saved.
+
+    figsize
+        Size of the matplotlib figure.
+    """
+
+    fig, ax = plt.subplots(figsize=figsize)
+
+    ax.hist(df[column], bins=bins)
+
+    ax.set_title(f"{column} Distribution")
+    ax.set_xlabel(column)
+    ax.set_ylabel("Frequency")
 
     plt.tight_layout()
 
