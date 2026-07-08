@@ -238,3 +238,66 @@ def plot_boxplot(
     plt.close(fig)
 
 
+def plot_multi_boxplots(
+    df: pd.DataFrame,
+    columns: list[str],
+    save_path: Optional[str | Path] = None,
+    figsize: tuple[int, int] = (12, 4),
+) -> None:
+    """
+    Plot boxplots for multiple features and optionally save the figure.
+
+    Parameters
+    ----------
+    df
+        Input dataframe.
+
+    columns
+        List of column names to visualize.
+
+    save_path
+        Optional path where the figure will be saved.
+        If provided, the plot is saved before being displayed.
+        If None, the figure is not saved.
+
+    figsize
+        Base size of the matplotlib figure. The height is automatically
+        scaled according to the number of subplot rows.
+    """
+
+    n_cols = 2
+    n_rows = math.ceil(len(columns) / n_cols)
+
+    fig, axes = plt.subplots(
+        n_rows,
+        n_cols,
+        figsize=(figsize[0], figsize[1] * n_rows),
+    )
+
+    if len(columns) == 1:
+        axes = [axes]
+    else:
+        axes = axes.flatten()
+
+    for i, column in enumerate(columns):
+        df.boxplot(column=column, ax=axes[i])
+
+        axes[i].set_title(f"{column} Boxplot")
+        axes[i].set_ylabel(column)
+        axes[i].set_xticks([])
+
+    for i in range(len(columns), len(axes)):
+        fig.delaxes(axes[i])
+
+    plt.tight_layout()
+
+    if save_path is not None:
+        save_path = Path(save_path)
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+
+    plt.show()
+
+    plt.close(fig)
+    

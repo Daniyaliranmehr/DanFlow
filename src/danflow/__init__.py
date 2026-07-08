@@ -16,6 +16,7 @@ from .visualization import (
     plot_histogram,
     plot_multi_histograms,
     plot_boxplot,
+    plot_multi_boxplots,
 )
 
 from .data import (
