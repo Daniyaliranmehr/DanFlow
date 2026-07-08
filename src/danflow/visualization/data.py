@@ -5,6 +5,7 @@ from typing import Optional
 
 import matplotlib.pyplot as plt
 import pandas as pd
+import math
 
 
 def plot_correlation_heatmap(
@@ -111,4 +112,77 @@ def plot_histogram(
     plt.show()
 
     plt.close(fig)
-    
+
+
+def plot_multi_histograms(
+    df: pd.DataFrame,
+    columns: list[str],
+    name: str,
+    bins: int = 50,
+    save_path: Optional[str | Path] = None,
+    figsize: tuple[int, int] | None = None,
+) -> None:
+    """
+    Plot histograms for multiple features.
+
+    Parameters
+    ----------
+    df
+        Input DataFrame.
+
+    columns
+        List of column names to visualize.
+
+    name
+        Figure title.
+
+    bins
+        Number of histogram bins.
+
+    save_path
+        Optional path where the figure will be saved.
+        If provided, the plot is saved to this location before being displayed.
+        If None, the figure is not saved.
+
+    figsize
+        Size of the matplotlib figure.
+        If None, the figure size is determined automatically.
+    """
+
+    n_cols = 2
+    n_rows = math.ceil(len(columns) / n_cols)
+
+    if figsize is None:
+        figsize = (12, 4 * n_rows)
+
+    fig, axes = plt.subplots(
+        n_rows,
+        n_cols,
+        figsize=figsize,
+    )
+
+    axes = axes.flatten()
+
+    for i, column in enumerate(columns):
+        axes[i].hist(df[column], bins=bins)
+
+        axes[i].set_title(f"{column} Distribution")
+        axes[i].set_xlabel(column)
+        axes[i].set_ylabel("Frequency")
+
+    for i in range(len(columns), len(axes)):
+        fig.delaxes(axes[i])
+
+    fig.suptitle(name, fontsize=16)
+
+    plt.tight_layout()
+
+    if save_path is not None:
+        save_path = Path(save_path)
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+
+    plt.show()
+
+    plt.close(fig)

@@ -14,6 +14,8 @@ from .visualization import (
     plot_training_history,
     plot_correlation_heatmap,
     plot_histogram,
+    plot_multi_histograms,
+    
 )
 
 from .data import (
