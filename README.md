@@ -3,7 +3,7 @@
 </p>
 <h1 align="center">DanFlow</h1>
 
-DanFlow is a modular Python library for deep learning, data science, and visualization.
+DanFlow is a Python library for deep learning, data science, and visualization.
 
 Built on top of PyTorch, it provides reusable components that simplify common workflows while remaining easy to use and extend.
 
@@ -37,6 +37,7 @@ Built on top of PyTorch, it provides reusable components that simplify common wo
 - Optionally highlight the best validation loss and/or the best validation metric
 - Plot correlation heatmaps for numerical features
 - Plot histograms for one or multiple features
+- Plot single and multiple feature boxplots
 
 > ⏳ More features coming soon...
 
