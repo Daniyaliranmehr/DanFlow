@@ -87,3 +87,30 @@ def test_delimited_to_csv_skips_empty_lines(tmp_path):
         ["1", "2", "3"],
         ["4", "5", "6"],
     ]
+
+
+def test_delimited_to_csv_uses_custom_delimiter(tmp_path):
+    input_file = tmp_path / "input.txt"
+    output_file = tmp_path / "output.csv"
+
+    input_file.write_text(
+        "1|2|3\n"
+        "4|5|6\n",
+        encoding="utf-8",
+    )
+
+    delimited_to_csv(
+        input_file,
+        output_file,
+        delimiter="|",
+    )
+
+    with output_file.open(newline="", encoding="utf-8") as file:
+        reader = csv.reader(file)
+        rows = list(reader)
+
+    assert rows == [
+        ["1", "2", "3"],
+        ["4", "5", "6"],
+    ]
+    
