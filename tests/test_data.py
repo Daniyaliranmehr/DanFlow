@@ -63,3 +63,27 @@ def test_delimited_to_csv_converts_space_delimited_file(tmp_path):
         ["1", "2", "3"],
         ["4", "5", "6"],
     ]
+
+
+def test_delimited_to_csv_skips_empty_lines(tmp_path):
+    input_file = tmp_path / "input.trn"
+    output_file = tmp_path / "output.csv"
+
+    input_file.write_text(
+        "1 2 3\n"
+        "\n"
+        "4 5 6\n"
+        "\n",
+        encoding="utf-8",
+    )
+
+    delimited_to_csv(input_file, output_file)
+
+    with output_file.open(newline="", encoding="utf-8") as file:
+        reader = csv.reader(file)
+        rows = list(reader)
+
+    assert rows == [
+        ["1", "2", "3"],
+        ["4", "5", "6"],
+    ]
