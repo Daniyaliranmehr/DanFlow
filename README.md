@@ -151,6 +151,8 @@ You can reach me through:
 
 This project is licensed under the MIT License.
 
-## Author
+## Contributors
 
-DanFlow was created and is maintained by **Daniyal Iran Mehr**.
+- **[Daniyal Iran Mehr](https://github.com/Daniyaliranmehr)** — Creator and maintainer
+
+- **[Amin Amini](https://github.com/aminaminimh)** — Documentation contributor
