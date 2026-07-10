@@ -10,3 +10,6 @@ __pycache__/
 
 # a temporary notebook for testing
 temp.ipynb
+
+# VSCode workspace settings
+.vscode/settings.json

@@ -3,11 +3,13 @@
 from danflow.data import (
     extract_zip,
     load_csv,
+    delimited_to_csv,
 )
 
 import pandas as pd
 import zipfile
 from pathlib import Path
+import csv
 
 
 def test_extract_zip(tmp_path: Path):
@@ -41,3 +43,23 @@ def test_load_csv(tmp_path: Path):
     assert list(df.columns) == ["feature", "label"]
 
 
+def test_delimited_to_csv_converts_space_delimited_file(tmp_path):
+    input_file = tmp_path / "input.trn"
+    output_file = tmp_path / "output.csv"
+
+    input_file.write_text(
+        "1 2 3\n"
+        "4 5 6\n",
+        encoding="utf-8",
+    )
+    
+    delimited_to_csv(input_file, output_file)
+
+    with output_file.open(newline="", encoding="utf-8") as file:
+        reader = csv.reader(file)
+        rows = list(reader)
+
+    assert rows == [
+        ["1", "2", "3"],
+        ["4", "5", "6"],
+    ]
