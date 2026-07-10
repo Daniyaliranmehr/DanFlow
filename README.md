@@ -13,6 +13,7 @@ Built on top of PyTorch, it provides reusable components that simplify common wo
 
 - Extract ZIP archives
 - Load CSV files into pandas DataFrames
+- Convert delimited text files to CSV format
 
 ### Training
 
