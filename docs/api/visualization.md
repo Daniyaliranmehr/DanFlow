@@ -188,3 +188,47 @@ plot_boxplot(
     save_path="plots/boxplot.png"
 )
 ```
+
+## plot_multi_boxplots()
+
+Plots boxplots for multiple DataFrame columns in a single figure.
+
+### Parameters
+
+#### `df` : `pd.DataFrame`
+
+Input DataFrame containing the data.
+
+#### `columns` : `list[str]`
+
+List of column names to visualize.
+
+#### `save_path` : `str | Path | None`, default=`None`
+
+Optional path where the generated figure will be saved.
+
+If `None`, the figure is displayed without being saved.
+
+#### `figsize` : `tuple[int, int]`, default=`(12, 4)`
+
+Base size of the matplotlib figure. The figure height is automatically adjusted according to the number of subplot rows.
+
+### Returns
+
+`None`
+
+### Example
+
+```python
+import pandas as pd
+
+from danflow.visualization.data import plot_multi_boxplots
+
+df = pd.read_csv("dataset.csv")
+
+plot_multi_boxplots(
+    df=df,
+    columns=["feature1", "feature2", "feature3"],
+    save_path="plots/boxplots.png"
+)
+```
