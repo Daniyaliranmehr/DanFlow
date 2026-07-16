@@ -144,4 +144,47 @@ plot_multi_histograms(
 )
 ```
 
----
+
+## plot_boxplot()
+
+Plots a boxplot for a selected DataFrame column.
+
+### Parameters
+
+#### `df` : `pd.DataFrame`
+
+Input DataFrame containing the data.
+
+#### `column` : `str`
+
+Name of the column to visualize.
+
+#### `save_path` : `str | Path | None`, default=`None`
+
+Optional path where the generated figure will be saved.
+
+If `None`, the figure is displayed without being saved.
+
+#### `figsize` : `tuple[int, int]`, default=`(8, 5)`
+
+Size of the matplotlib figure.
+
+### Returns
+
+`None`
+
+### Example
+
+```python
+import pandas as pd
+
+from danflow.visualization.data import plot_boxplot
+
+df = pd.read_csv("dataset.csv")
+
+plot_boxplot(
+    df=df,
+    column="feature1",
+    save_path="plots/boxplot.png"
+)
+```
