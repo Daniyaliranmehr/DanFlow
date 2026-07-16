@@ -87,3 +87,61 @@ plot_histogram(
     save_path="plots/"
 )
 ```
+
+## plot_multi_histograms()
+
+Plots histograms for multiple DataFrame columns in a single figure.
+
+### Parameters
+
+#### `df` : `pd.DataFrame`
+
+Input DataFrame containing the data.
+
+#### `columns` : `list[str]`
+
+List of column names to visualize.
+
+#### `name` : `str`
+
+Title of the figure.
+
+#### `bins` : `int`, default=`50`
+
+Number of histogram bins.
+
+#### `save_path` : `str | Path | None`, default=`None`
+
+Optional path where the generated figure will be saved.
+
+If `None`, the figure is displayed without being saved.
+
+#### `figsize` : `tuple[int, int] | None`, default=`None`
+
+Size of the matplotlib figure.
+
+If `None`, the figure size is determined automatically based on the number of subplots.
+
+### Returns
+
+`None`
+
+### Example
+
+```python
+import pandas as pd
+
+from danflow.visualization.data import plot_multi_histograms
+
+df = pd.read_csv("dataset.csv")
+
+plot_multi_histograms(
+    df=df,
+    columns=["feature1", "feature2", "feature3"],
+    name="Feature Distributions",
+    bins=30,
+    save_path="plots/histograms.png"
+)
+```
+
+---
