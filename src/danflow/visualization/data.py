@@ -250,10 +250,14 @@ def plot_boxplot(
     column
         Name of the column to visualize.
 
-    save_path
+   save_path
         Optional path where the figure will be saved.
-        If provided, the plot is saved before being displayed.
-        If None, the figure is not saved.
+        - If a filename is provided (e.g., ``"plots/boxplot.png"``), the
+        figure is saved using that filename.
+        - If a directory is provided (e.g., ``"plots/"`` or ``"plots"``), the
+        figure is saved in that directory using an automatically generated
+        filename.
+        - If ``None``, the figure is not saved.
 
     figsize
         Size of the matplotlib figure.
@@ -271,9 +275,21 @@ def plot_boxplot(
 
     if save_path is not None:
         save_path = Path(save_path)
-        save_path.parent.mkdir(parents=True, exist_ok=True)
 
-        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+        # Case 1: Existing directory
+        if save_path.exists() and save_path.is_dir():
+            save_path = save_path / f"{column}_boxplot.png"
+
+        # Case 2: Path has no extension -> treat as directory
+        elif save_path.suffix == "":
+            save_path.mkdir(parents=True, exist_ok=True)
+            save_path = save_path / f"{column}_boxplot.png"
+
+        # Case 3: Path is a filename
+        else:
+            save_path.parent.mkdir(parents=True, exist_ok=True)
+
+        fig.savefig(save_path, dpi=300, bbox_inches="tight")
 
     plt.show()
 
