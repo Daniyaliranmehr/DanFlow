@@ -87,9 +87,9 @@ Encoding used to read the input file and write the output CSV file.
 Suppose `data.txt` contains:
 
 ```text
-Ali;20;CS
-Sara;21;Math
-Reza;19;Physics
+1.2 3.4 0
+5.6 7.8 1
+9.1 2.3 0
 ```
 
 Convert it to a CSV file:
@@ -98,16 +98,16 @@ Convert it to a CSV file:
 from danflow.data.io import delimited_to_csv
 
 delimited_to_csv(
-    input_path="students.txt",
-    output_path="students.csv",
-    delimiter=";"
+    input_path="dataset.txt",
+    output_path="dataset.csv",
+    delimiter=" "
 )
 ```
 
 The generated `data.csv` will contain:
 
 ```text
-Ali,20,CS
-Sara,21,Math
-Reza,19,Physics
+1.2,3.4,0
+5.6,7.8,1
+9.1,2.3,0
 ```
