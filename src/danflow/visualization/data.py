@@ -5,6 +5,7 @@ from typing import Optional
 
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 import math
 
 
@@ -133,7 +134,7 @@ def plot_histogram(
 def plot_multi_histograms(
     df: pd.DataFrame,
     columns: list[str],
-    name: str,
+    name: Optional[str] = None,
     bins: int = 50,
     save_path: Optional[str | Path] = None,
     figsize: tuple[int, int] | None = None,
@@ -157,13 +158,29 @@ def plot_multi_histograms(
 
     save_path
         Optional path where the figure will be saved.
-        If provided, the plot is saved to this location before being displayed.
-        If None, the figure is not saved.
+
+        - If a filename is provided (e.g., ``"plots/histograms.png"``),
+        the figure is saved using that filename.
+        - If a directory is provided (e.g., ``"plots/"`` or ``"plots"``),
+        the figure is saved in that directory using the figure name
+        (e.g., ``"multi_histograms.png"``).
+        - If ``None``, the figure is not saved.
 
     figsize
         Size of the matplotlib figure.
         If None, the figure size is determined automatically.
+
+    Raises
+    ------
+    ValueError
+        If ``columns`` is empty.
     """
+
+    if len(columns) == 0:
+        raise ValueError("'columns' must contain at least one column name.")
+
+    if name is None:
+        name = "multi_histograms"
 
     n_cols = 2
     n_rows = math.ceil(len(columns) / n_cols)
@@ -177,10 +194,7 @@ def plot_multi_histograms(
         figsize=figsize,
     )
 
-    if len(columns) == 1:
-        axes = [axes]
-    else:
-        axes = axes.flatten()
+    axes = np.atleast_1d(axes).flatten()
 
     for i, column in enumerate(columns):
         axes[i].hist(df[column], bins=bins)
@@ -198,9 +212,21 @@ def plot_multi_histograms(
 
     if save_path is not None:
         save_path = Path(save_path)
-        save_path.parent.mkdir(parents=True, exist_ok=True)
 
-        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+        # Case 1: Existing directory
+        if save_path.exists() and save_path.is_dir():
+            save_path = save_path / f"{name}.png"
+
+        # Case 2: Path has no extension -> treat as directory
+        elif save_path.suffix == "":
+            save_path.mkdir(parents=True, exist_ok=True)
+            save_path = save_path / f"{name}.png"
+
+        # Case 3: Path is a filename
+        else:
+            save_path.parent.mkdir(parents=True, exist_ok=True)
+
+        fig.savefig(save_path, dpi=300, bbox_inches="tight")
 
     plt.show()
 
