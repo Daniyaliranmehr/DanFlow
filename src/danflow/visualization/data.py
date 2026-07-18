@@ -336,7 +336,7 @@ def plot_multi_boxplots(
     save_path
         Optional path where the figure will be saved.
 
-        - If a filename is provided (e.g., ``"plots/boxplot.png"``),
+        - If a filename is provided (e.g., ``"plots/multi_boxplots.png"``),
         the figure is saved using that filename.
         - If a directory is provided (e.g., ``"plots/"`` or ``"plots"``),
         the figure is saved in that directory using the figure name
