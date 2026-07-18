@@ -24,8 +24,12 @@ def plot_correlation_heatmap(
 
     save_path
         Optional path where the figure will be saved.
-        If provided, the plot is saved to this location before being displayed.
-        If None, the figure is not saved.
+        - If a filename is provided (e.g., ``"plots/correlation_heatmap.png"``), the
+        figure is saved using that filename.
+        - If a directory is provided (e.g., ``"plots/"`` or ``"plots"``), the
+        figure is saved in that directory using an automatically generated
+        filename.
+        - If ``None``, the figure is not saved.
 
     figsize
         Size of the matplotlib figure.
@@ -55,9 +59,21 @@ def plot_correlation_heatmap(
 
     if save_path is not None:
         save_path = Path(save_path)
-        save_path.parent.mkdir(parents=True, exist_ok=True)
 
-        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+        # Case 1: Existing directory
+        if save_path.exists() and save_path.is_dir():
+            save_path = save_path / "correlation_heatmap.png"
+
+        # Case 2: Path has no extension -> treat as directory
+        elif save_path.suffix == "":
+            save_path.mkdir(parents=True, exist_ok=True)
+            save_path = save_path / "correlation_heatmap.png"
+
+        # Case 3: Path is a filename
+        else:
+            save_path.parent.mkdir(parents=True, exist_ok=True)
+
+        fig.savefig(save_path, dpi=300, bbox_inches="tight")
 
     plt.show()
 
@@ -299,6 +315,7 @@ def plot_boxplot(
 def plot_multi_boxplots(
     df: pd.DataFrame,
     columns: list[str],
+    name: Optional[str] = None,
     save_path: Optional[str | Path] = None,
     figsize: tuple[int, int] = (12, 4),
 ) -> None:
@@ -313,15 +330,29 @@ def plot_multi_boxplots(
     columns
         List of column names to visualize.
 
+    name
+        Figure title.
+
     save_path
         Optional path where the figure will be saved.
-        If provided, the plot is saved before being displayed.
-        If None, the figure is not saved.
+
+        - If a filename is provided (e.g., ``"plots/boxplot.png"``),
+        the figure is saved using that filename.
+        - If a directory is provided (e.g., ``"plots/"`` or ``"plots"``),
+        the figure is saved in that directory using the figure name
+        (e.g., ``"multi_boxplots.png"``).
+        - If ``None``, the figure is not saved.
 
     figsize
         Base size of the matplotlib figure. The height is automatically
         scaled according to the number of subplot rows.
     """
+
+    if len(columns) == 0:
+        raise ValueError("'columns' must contain at least one column name.")
+
+    if name is None:
+        name = "multi_boxplots"
 
     n_cols = 2
     n_rows = math.ceil(len(columns) / n_cols)
@@ -332,10 +363,7 @@ def plot_multi_boxplots(
         figsize=(figsize[0], figsize[1] * n_rows),
     )
 
-    if len(columns) == 1:
-        axes = [axes]
-    else:
-        axes = axes.flatten()
+    axes = np.atleast_1d(axes).flatten()
 
     for i, column in enumerate(columns):
         df.boxplot(column=column, ax=axes[i])
@@ -351,9 +379,21 @@ def plot_multi_boxplots(
 
     if save_path is not None:
         save_path = Path(save_path)
-        save_path.parent.mkdir(parents=True, exist_ok=True)
 
-        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+        # Case 1: Existing directory
+        if save_path.exists() and save_path.is_dir():
+            save_path = save_path / f"{name}.png"
+
+        # Case 2: Path has no extension -> treat as directory
+        elif save_path.suffix == "":
+            save_path.mkdir(parents=True, exist_ok=True)
+            save_path = save_path / f"{name}.png"
+
+        # Case 3: Path is a filename
+        else:
+            save_path.parent.mkdir(parents=True, exist_ok=True)
+
+        fig.savefig(save_path, dpi=300, bbox_inches="tight")
 
     plt.show()
 
