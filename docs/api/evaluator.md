@@ -6,17 +6,15 @@ The `Evaluator` class provides a simple interface for running inference on a tes
 
 ### Example
 
-```python
-from danflow.training import Evaluator
+```pycon
+>>> from danflow.training import Evaluator
 
-evaluator = Evaluator(
-    model=model,
-    loss_fn=loss_fn,
-    metric=metric,
-)
+>>> evaluator = Evaluator(
+...     model=model,
+...     loss_fn=loss_fn,
+...     metric=metric,
+... )
 ```
-
----
 
 ## test()
 
@@ -47,13 +45,12 @@ Possible keys include:
 
 ### Example
 
-```python
-from danflow.training import Evaluator
+```pycon
+>>> results = evaluator.test(
+...     x_test=x_test,
+...     y_test=y_test,
+... )
 
-results = evaluator.test(
-    x_test=x_test,
-    y_test=y_test,
-)
-
-print(results)
+>>> results
+{'Loss': 0.2458, 'Metric': 0.9375}
 ```
