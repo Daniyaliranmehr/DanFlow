@@ -1,79 +1,4 @@
-## AverageMeter
-
-Computes and tracks the current value and running average of a metric.
-
-### Example
-
-```python
-from danflow.training import AverageMeter
-
-meter = AverageMeter()
-
-meter.update(0.42)
-meter.update(0.38)
-
-print(meter.avg)
-```
-
-
-## reset()
-
-Resets all tracked statistics.
-
-### Parameters
-
-None
-
-### Returns
-
-`None`
-
-### Example
-
-```python
-from danflow.training import AverageMeter
-
-meter = AverageMeter()
-
-meter.update(0.42)
-meter.reset()
-```
-
-
-## update()
-
-Updates the running statistics with a new value.
-
-### Parameters
-
-#### `val` : `float`
-
-Value to add.
-
-#### `n` : `int`, default=`1`
-
-Number of samples represented by `val`.
-
-### Returns
-
-`None`
-
-### Example
-
-```python
-from danflow.training import AverageMeter
-
-meter = AverageMeter()
-
-meter.update(
-    val=0.42,
-    n=32,
-)
-```
-
----
-
-## Trainer
+# Trainer
 
 Trains and validates PyTorch models.
 
@@ -81,16 +6,15 @@ The `Trainer` class manages the complete training workflow, including training, 
 
 ### Example
 
-```python
-from danflow.training import Trainer
+```pycon
+>>> from danflow.training import Trainer
 
-trainer = Trainer(
-    model=model,
-    optimizer=optimizer,
-    loss_fn=loss_fn,
-)
+>>> trainer = Trainer(
+...     model=model,
+...     optimizer=optimizer,
+...     loss_fn=loss_fn,
+... )
 ```
-
 
 ## train_epoch()
 
@@ -115,12 +39,16 @@ A tuple containing:
 
 ### Example
 
-```python
-from danflow.training import Trainer
+```pycon
+>>> train_loss, train_metric = trainer.train_epoch(
+...     train_loader=train_loader,
+... )
 
-train_loss, train_metric = trainer.train_epoch(
-    train_loader=train_loader
-)
+>>> train_loss
+0.4238
+
+>>> train_metric
+0.9184
 ```
 
 ## validate_epoch()
@@ -146,12 +74,16 @@ A tuple containing:
 
 ### Example
 
-```python
-from danflow.training import Trainer
+```pycon
+>>> valid_loss, valid_metric = trainer.validate_epoch(
+...     valid_loader=valid_loader,
+... )
 
-valid_loss, valid_metric = trainer.validate_epoch(
-    valid_loader=valid_loader
-)
+>>> valid_loss
+0.3972
+
+>>> valid_metric
+0.9261
 ```
 
 ## fit()
@@ -190,74 +122,25 @@ Dictionary containing the training history and the best validation results.
 
 ### Example
 
-```python
-from danflow.training import Trainer
+```pycon
+>>> history = trainer.fit(
+...     train_loader=train_loader,
+...     valid_loader=valid_loader,
+...     epochs=20,
+...     save_best=True,
+...     checkpoint_path="checkpoint.pth",
+... )
 
-history = trainer.fit(
-    train_loader=train_loader,
-    valid_loader=valid_loader,
-    epochs=20,
-    save_best=True,
-    checkpoint_path="checkpoint.pth",
-)
-```
----
-
-## Evaluator
-
-Evaluates a trained PyTorch model on test data.
-
-The `Evaluator` class provides a simple interface for running inference on a test dataset and computing optional evaluation metrics and loss.
-
-### Example
-
-```python
-from danflow.training import Evaluator
-
-evaluator = Evaluator(
-    model=model,
-    loss_fn=loss_fn,
-    metric=metric,
-)
-```
-
-
-## test()
-
-Runs model evaluation on test data.
-
-The model is switched to evaluation mode and inference is performed without gradient computation. The model's original training state is restored after evaluation.
-
-### Parameters
-
-#### `x_test` : `torch.Tensor`
-
-Input test features.
-
-#### `y_test` : `torch.Tensor`
-
-Ground-truth target values.
-
-### Returns
-
-`dict[str, float]`
-
-Dictionary containing the evaluation results.
-
-Possible keys include:
-
-- `"Loss"`
-- `"Metric"`
-
-### Example
-
-```python
-from danflow.training import Evaluator
-
-results = evaluator.test(
-    x_test=x_test,
-    y_test=y_test,
-)
-
-print(results)
+>>> history.keys()
+dict_keys([
+    'train_loss',
+    'valid_loss',
+    'train_metric',
+    'valid_metric',
+    'metric_name',
+    'best_valid_loss',
+    'best_loss_epoch',
+    'best_valid_metric',
+    'best_metric_epoch'
+])
 ```
