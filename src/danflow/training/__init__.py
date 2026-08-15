@@ -8,4 +8,6 @@ from .trainer import (
 
 from .checker import (
     ModelChecker,
+    ForwardCheckResult,
+    BackwardCheckResult,
 )
