@@ -130,3 +130,46 @@ class ModelChecker:
             1000 samples / 5 batches = 200 batch size.
         """
         return max(1, math.ceil(num_samples / num_batches))
+
+
+    def _check_overfitting(
+        self,
+        final_loss: float,
+        final_metric: Optional[float],
+    ) -> Optional[bool]:
+        """
+        Determine whether the requested overfitting target was reached.
+
+        Returns
+        -------
+        bool or None
+            True if all requested targets were reached.
+            False if at least one requested target was not reached.
+            None if no target was provided.
+        """
+
+        if (
+            self._target_loss is None
+            and self._target_metric is None
+        ):
+            return None
+
+        checks = []
+
+        if self._target_loss is not None:
+            checks.append(
+                final_loss <= self._target_loss
+            )
+
+        if self._target_metric is not None:
+            if final_metric is None:
+                raise ValueError(
+                    "target_metric was provided, but no metric "
+                    "was supplied to backward_check()."
+                )
+
+            checks.append(
+                final_metric >= self._target_metric
+            )
+
+        return all(checks)
