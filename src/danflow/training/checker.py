@@ -23,3 +23,19 @@ class ForwardCheckResult:
     input_shape: tuple[int, ...]
     target_shape: tuple[int, ...]
     output_shape: tuple[int, ...]
+
+
+@dataclass
+class BackwardCheckResult:
+    """
+    Results returned by backward_check() and continue_backward().
+    """
+
+    initial_loss: float
+    final_loss: float
+    final_metric: Optional[float]
+    epochs_trained: int
+    target_loss: Optional[float]
+    target_metric: Optional[float]
+    success: Optional[bool]
+    automatic_extension_used: bool
