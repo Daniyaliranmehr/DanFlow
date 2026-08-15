@@ -753,3 +753,50 @@ class ModelChecker:
                     postfix[self._trainer.metric_name] = f"{metric:.4f}"
 
                 progress_bar.set_postfix(postfix)
+
+    # ------------------------------------------------------------------
+    # Result printing
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _print_backward_result(
+        result: BackwardCheckResult,
+    ) -> None:
+        """
+        Print a human-readable backward-check summary.
+        """
+
+        print(
+            f"\nInitial loss: {result.initial_loss:.4f}"
+        )
+
+        print(
+            f"Final loss:   {result.final_loss:.4f}"
+        )
+
+        if result.final_metric is not None:
+            print(
+                f"Final metric: {result.final_metric:.4f}"
+            )
+
+        if result.success is True:
+
+            print(
+                "Result: The model successfully reached "
+                "the requested overfitting target."
+            )
+
+        elif result.success is False:
+
+            print(
+                "Result: The model did not reach the "
+                "requested overfitting target."
+            )
+
+        else:
+
+            print(
+                "Result: No overfitting target was provided, "
+                "so the checker cannot formally determine "
+                "whether the subset was overfit."
+            )
