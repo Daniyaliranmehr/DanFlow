@@ -397,3 +397,124 @@ class ModelChecker:
             # Restore the model's original mode.
             if was_training:
                 self.model.train()
+
+    # ------------------------------------------------------------------
+    # Backward check
+    # ------------------------------------------------------------------
+
+    def backward_check(
+        self,
+        train_dataset,
+        *,
+        num_samples: int = DEFAULT_NUM_SAMPLES,
+        batch_size: Optional[int] = None,
+        metric=None,
+        target_metric: Optional[float] = None,
+        target_loss: Optional[float] = None,
+        epochs: Optional[int] = None,
+        seed: Optional[int] = None,
+    ) -> BackwardCheckResult:
+        """
+        Check whether the model can overfit a small training subset.
+
+        If `epochs` is None, the checker:
+
+        1. Trains for 500 epochs.
+        2. Checks the requested target.
+        3. If the target was not reached, trains for another 500 epochs.
+
+        If `epochs` is explicitly provided, only that number of epochs
+        is trained.
+
+        Parameters
+        ----------
+        train_dataset
+            Dataset from which the overfitting subset is selected.
+
+        num_samples
+            Number of samples used for the overfitting experiment.
+            Default: 1000.
+
+        batch_size
+            Batch size for the mini DataLoader.
+
+            If None, the checker creates approximately 5 batches.
+
+            Example:
+                1000 samples -> batch_size=200
+
+        metric
+            Optional TorchMetrics metric.
+
+        target_metric
+            Desired final metric value.
+
+            Example for accuracy:
+                target_metric=0.99
+
+        target_loss
+            Desired maximum final loss.
+
+            Example:
+                target_loss=0.01
+
+        epochs
+            Number of epochs for the first training attempt.
+
+            If None:
+                500 epochs are used, followed by another 500 if
+                a target exists and was not reached.
+
+            If explicitly provided:
+                no automatic second training phase is performed.
+
+        seed
+            Optional random seed used when selecting the subset.
+
+        Returns
+        -------
+        BackwardCheckResult
+            Results from the overfitting experiment.
+        """
+
+        self._validate_dataset(train_dataset)
+
+        if num_samples < 1:
+            raise ValueError(
+                "num_samples must be at least 1."
+            )
+
+        if num_samples > len(train_dataset):
+            raise ValueError(
+                f"num_samples ({num_samples}) cannot be greater "
+                f"than dataset size ({len(train_dataset)})."
+            )
+
+        if epochs is not None and epochs < 1:
+            raise ValueError(
+                "epochs must be at least 1."
+            )
+
+        if (
+            target_metric is not None
+            and metric is None
+        ):
+            raise ValueError(
+                "target_metric requires a metric."
+            )
+
+        if (
+            target_loss is not None
+            and target_loss < 0
+        ):
+            raise ValueError(
+                "target_loss must be non-negative."
+            )
+
+        if self._backward_loader is not None:
+            raise RuntimeError(
+                "backward_check() has already initialized an "
+                "overfitting subset.\n"
+                "Use continue_backward() to train for more "
+                "epochs on the same subset."
+            )
