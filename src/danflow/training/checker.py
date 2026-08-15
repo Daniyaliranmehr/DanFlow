@@ -598,3 +598,48 @@ class ModelChecker:
         )
 
         automatic_extension_used = False
+
+        # --------------------------------------------------------------
+        # Automatic second attempt
+        # --------------------------------------------------------------
+        #
+        # We can only automatically decide whether another 500 epochs
+        # are necessary when the user supplied an explicit success
+        # criterion.
+        #
+        # Without target_loss/target_metric there is no objective way
+        # to determine whether the model has "overfit enough".
+        # --------------------------------------------------------------
+
+        if (
+            epochs is None
+            and success is False
+        ):
+            automatic_extension_used = True
+
+            self._run_backward_epochs(
+                self.DEFAULT_EPOCHS
+            )
+
+            final_loss = self._backward_history[-1]["loss"]
+            final_metric = self._backward_history[-1]["metric"]
+
+            success = self._check_overfitting(
+                final_loss,
+                final_metric,
+            )
+
+        result = BackwardCheckResult(
+            initial_loss=self._backward_initial_loss,
+            final_loss=final_loss,
+            final_metric=final_metric,
+            epochs_trained=self._backward_epochs_trained,
+            target_loss=self._target_loss,
+            target_metric=self._target_metric,
+            success=success,
+            automatic_extension_used=automatic_extension_used,
+        )
+
+        self._print_backward_result(result)
+
+        return result
