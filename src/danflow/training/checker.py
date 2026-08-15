@@ -643,3 +643,66 @@ class ModelChecker:
         self._print_backward_result(result)
 
         return result
+
+
+    # ------------------------------------------------------------------
+    # Continue backward checking
+    # ------------------------------------------------------------------
+
+    def continue_backward(
+        self,
+        epochs: int,
+    ) -> BackwardCheckResult:
+        """
+        Continue backward checking on the same subset.
+
+        This does not create a new random subset and does not reset
+        the model or optimizer. It continues from the current model
+        and optimizer state.
+
+        Parameters
+        ----------
+        epochs
+            Number of additional epochs.
+
+        Returns
+        -------
+        BackwardCheckResult
+            Updated backward-check results.
+        """
+
+        if self._backward_loader is None:
+            raise RuntimeError(
+                "Run backward_check() before "
+                "calling continue_backward()."
+            )
+
+        if epochs < 1:
+            raise ValueError(
+                "epochs must be at least 1."
+            )
+
+        self._run_backward_epochs(epochs)
+
+        final_loss = self._backward_history[-1]["loss"]
+        final_metric = self._backward_history[-1]["metric"]
+
+        success = self._check_overfitting(
+            final_loss,
+            final_metric,
+        )
+
+        result = BackwardCheckResult(
+            initial_loss=self._backward_initial_loss,
+            final_loss=final_loss,
+            final_metric=final_metric,
+            epochs_trained=self._backward_epochs_trained,
+            target_loss=self._target_loss,
+            target_metric=self._target_metric,
+            success=success,
+            automatic_extension_used=False,
+        )
+
+        self._print_backward_result(result)
+
+        return result
