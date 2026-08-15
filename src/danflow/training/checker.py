@@ -94,3 +94,24 @@ class ModelChecker:
         self._backward_epochs_trained = 0
 
         self._backward_history: list[dict[str, Optional[float]]] = []
+
+    # ------------------------------------------------------------------
+    # Helper methods
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _validate_dataset(dataset) -> None:
+        """
+        Validate that the dataset is non-empty and supports len().
+        """
+        try:
+            dataset_length = len(dataset)
+        except TypeError as exc:
+            raise TypeError(
+                "dataset must implement __len__ and __getitem__."
+            ) from exc
+
+        if dataset_length == 0:
+            raise ValueError(
+                "dataset must contain at least one sample."
+            )
