@@ -115,3 +115,18 @@ class ModelChecker:
             raise ValueError(
                 "dataset must contain at least one sample."
             )
+
+
+    @staticmethod
+    def _default_batch_size(
+        num_samples: int,
+        num_batches: int,
+    ) -> int:
+        """
+        Calculate a batch size that produces approximately
+        `num_batches` batches.
+
+        Example:
+            1000 samples / 5 batches = 200 batch size.
+        """
+        return max(1, math.ceil(num_samples / num_batches))
