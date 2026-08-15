@@ -24,17 +24,19 @@ Size of the matplotlib figure.
 
 ### Example
 
-```python
-import pandas as pd
+```pycon
+>>> import pandas as pd
+>>> from danflow.visualization.data import plot_correlation_heatmap
 
-from danflow.visualization.data import plot_correlation_heatmap
+>>> df = pd.read_csv("dataset.csv")
 
-df = pd.read_csv("dataset.csv")
+>>> plot_correlation_heatmap(
+...     df=df,
+...     save_path="plots/correlation_heatmap.png",
+... )
 
-plot_correlation_heatmap(
-    df=df,
-    save_path="plots/correlation_heatmap.png"
-)
+# Displays the correlation heatmap and saves it to
+# "plots/correlation_heatmap.png".
 ```
 
 ## plot_histogram()
@@ -73,20 +75,23 @@ Size of the matplotlib figure.
 
 ### Example
 
-```python
-import pandas as pd
+```pycon
+>>> import pandas as pd
+>>> from danflow.visualization.data import plot_histogram
 
-from danflow.visualization.data import plot_histogram
+>>> df = pd.read_csv("dataset.csv")
 
-df = pd.read_csv("dataset.csv")
+>>> plot_histogram(
+...     df=df,
+...     column="feature_1",
+...     bins=30,
+...     save_path="plots/",
+... )
 
-plot_histogram(
-    df=df,
-    column="age",
-    bins=30,
-    save_path="plots/"
-)
+# Displays the histogram of "feature_1" and saves it
+# to "plots/feature_1_histogram.png".
 ```
+
 
 ## plot_multi_histograms()
 
@@ -128,20 +133,22 @@ If `None`, the figure size is determined automatically based on the number of su
 
 ### Example
 
-```python
-import pandas as pd
+```pycon
+>>> import pandas as pd
+>>> from danflow.visualization.data import plot_multi_histograms
 
-from danflow.visualization.data import plot_multi_histograms
+>>> df = pd.read_csv("dataset.csv")
 
-df = pd.read_csv("dataset.csv")
+>>> plot_multi_histograms(
+...     df=df,
+...     columns=["feature_1", "feature_2", "feature_3"],
+...     name="Distributions",
+...     bins=30,
+...     save_path="plots/histograms.png",
+... )
 
-plot_multi_histograms(
-    df=df,
-    columns=["feature1", "feature2", "feature3"],
-    name="Feature Distributions",
-    bins=30,
-    save_path="plots/histograms.png"
-)
+# Displays histograms for the selected columns and saves
+# the figure to "plots/histograms.png".
 ```
 
 
@@ -175,18 +182,20 @@ Size of the matplotlib figure.
 
 ### Example
 
-```python
-import pandas as pd
+```pycon
+>>> import pandas as pd
+>>> from danflow.visualization.data import plot_boxplot
 
-from danflow.visualization.data import plot_boxplot
+>>> df = pd.read_csv("dataset.csv")
 
-df = pd.read_csv("dataset.csv")
+>>> plot_boxplot(
+...     df=df,
+...     column="feature_1",
+...     save_path="plots/boxplot.png",
+... )
 
-plot_boxplot(
-    df=df,
-    column="feature1",
-    save_path="plots/boxplot.png"
-)
+# Displays the boxplot and saves it to
+# "plots/boxplot.png".
 ```
 
 ## plot_multi_boxplots()
@@ -219,18 +228,20 @@ Base size of the matplotlib figure. The figure height is automatically adjusted 
 
 ### Example
 
-```python
-import pandas as pd
+```pycon
+>>> import pandas as pd
+>>> from danflow.visualization.data import plot_multi_boxplots
 
-from danflow.visualization.data import plot_multi_boxplots
+>>> df = pd.read_csv("dataset.csv")
 
-df = pd.read_csv("dataset.csv")
+>>> plot_multi_boxplots(
+...     df=df,
+...     columns=["feature_1", "feature_2", "feature_3"],
+...     save_path="plots/boxplots.png",
+... )
 
-plot_multi_boxplots(
-    df=df,
-    columns=["feature1", "feature2", "feature3"],
-    save_path="plots/boxplots.png"
-)
+# Displays boxplots for the selected columns and saves
+# the figure to "plots/boxplots.png".
 ```
 
 ## plot_training_history()
@@ -281,24 +292,27 @@ Size of the matplotlib figure.
 
 ### Example
 
-```python
-from danflow.visualization.training import plot_training_history
+```pycon
+>>> from danflow.visualization.training import plot_training_history
 
-history = {
-    "train_loss": [0.82, 0.64, 0.49, 0.38],
-    "valid_loss": [0.88, 0.70, 0.55, 0.46],
-    "train_metric": [0.71, 0.80, 0.87, 0.92],
-    "valid_metric": [0.69, 0.77, 0.84, 0.89],
-    "metric_name": "Accuracy",
-    "best_loss_epoch": 4,
-    "best_metric_epoch": 4,
-}
+>>> history = {
+...     "train_loss": [0.82, 0.64, 0.49, 0.38],
+...     "valid_loss": [0.88, 0.70, 0.55, 0.46],
+...     "train_metric": [0.71, 0.80, 0.87, 0.92],
+...     "valid_metric": [0.69, 0.77, 0.84, 0.89],
+...     "metric_name": "Accuracy",
+...     "best_loss_epoch": 4,
+...     "best_metric_epoch": 4,
+... }
 
-plot_training_history(
-    history=history,
-    name="Model",
-    show_best_loss=True,
-    show_best_metric=True,
-    save_path="plots/training_history.png"
-)
+>>> plot_training_history(
+...     history=history,
+...     name="Model",
+...     show_best_loss=True,
+...     show_best_metric=True,
+...     save_path="plots/training_history.png",
+... )
+
+# Displays the training history plot and saves it to
+# "plots/training_history.png".
 ```

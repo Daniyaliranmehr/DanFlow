@@ -7,9 +7,11 @@ Extracts a ZIP archive to a specified directory.
 ### Parameters
 
 #### `zip_path` : `str | Path`
+
 Path to the ZIP archive.
 
 #### `output_path` : `str | Path`
+
 Directory where the archive will be extracted.
 
 ### Returns
@@ -18,16 +20,15 @@ Directory where the archive will be extracted.
 
 ### Example
 
-```python
-from danflow.data.io import extract_zip
+```pycon
+>>> from pathlib import Path
+>>> from danflow.data.io import extract_zip
 
-extract_zip(
-    "dataset.zip",
-    "data/"
-)
+>>> extract_zip("dataset.zip", "data")
+
+>>> Path("data").exists()
+True
 ```
-
----
 
 ## load_csv()
 
@@ -43,16 +44,17 @@ Path to the CSV file.
 
 `pd.DataFrame`
 
-
 ### Example
 
-```python
-from danflow.data.io import load_csv
+```pycon
+>>> from danflow.data.io import load_csv
 
-df = load_csv("dataset.csv")
+>>> df = load_csv("dataset.csv")
+
+>>> type(df)
+<class 'pandas.core.frame.DataFrame'>
 ```
 
----
 
 ## delimited_to_csv()
 
@@ -84,7 +86,7 @@ Encoding used to read the input file and write the output CSV file.
 
 ### Example
 
-Suppose `data.txt` contains:
+Suppose `dataset.txt` contains:
 
 ```text
 1.2 3.4 0
@@ -92,21 +94,15 @@ Suppose `data.txt` contains:
 9.1 2.3 0
 ```
 
-Convert it to a CSV file:
+```pycon
+>>> from danflow.data.io import delimited_to_csv
 
-```python
-from danflow.data.io import delimited_to_csv
+>>> delimited_to_csv(
+...     input_path="dataset.txt",
+...     output_path="dataset.csv",
+... )
 
-delimited_to_csv(
-    input_path="dataset.txt",
-    output_path="dataset.csv",
-    delimiter=" "
-)
-```
-
-The generated `data.csv` will contain:
-
-```text
+>>> print(open("dataset.csv").read())
 1.2,3.4,0
 5.6,7.8,1
 9.1,2.3,0
