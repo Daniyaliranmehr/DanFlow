@@ -518,3 +518,83 @@ class ModelChecker:
                 "Use continue_backward() to train for more "
                 "epochs on the same subset."
             )
+
+        # --------------------------------------------------------------
+        # Create the mini dataset
+        # --------------------------------------------------------------
+
+        generator = None
+
+        if seed is not None:
+            generator = torch.Generator().manual_seed(seed)
+
+        mini_dataset, _ = random_split(
+            train_dataset,
+            [
+                num_samples,
+                len(train_dataset) - num_samples,
+            ],
+            generator=generator,
+        )
+
+        # --------------------------------------------------------------
+        # Determine batch size
+        # --------------------------------------------------------------
+
+        if batch_size is None:
+            batch_size = self._default_batch_size(
+                num_samples,
+                self.DEFAULT_NUM_BATCHES,
+            )
+
+        if batch_size < 1:
+            raise ValueError(
+                "batch_size must be at least 1."
+            )
+
+        self._backward_loader = DataLoader(
+            mini_dataset,
+            batch_size=batch_size,
+            shuffle=True,
+        )
+
+        self._target_metric = target_metric
+        self._target_loss = target_loss
+
+        # --------------------------------------------------------------
+        # Create the DanFlow Trainer
+        # --------------------------------------------------------------
+
+        self._trainer = Trainer(
+            model=self.model,
+            optimizer=self.optimizer,
+            loss_fn=self.loss_fn,
+            metric=metric,
+        )
+
+        # --------------------------------------------------------------
+        # First training attempt
+        # --------------------------------------------------------------
+
+        first_epochs = (
+            epochs
+            if epochs is not None
+            else self.DEFAULT_EPOCHS
+        )
+
+        self._run_backward_epochs(first_epochs)
+
+        # The first history value is the actual initial epoch loss.
+        self._backward_initial_loss = (
+            self._backward_history[0]["loss"]
+        )
+
+        final_loss = self._backward_history[-1]["loss"]
+        final_metric = self._backward_history[-1]["metric"]
+
+        success = self._check_overfitting(
+            final_loss,
+            final_metric,
+        )
+
+        automatic_extension_used = False
