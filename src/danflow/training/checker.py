@@ -173,3 +173,227 @@ class ModelChecker:
             )
 
         return all(checks)
+
+
+    # ------------------------------------------------------------------
+    # Forward check
+    # ------------------------------------------------------------------
+
+    def forward_check(
+        self,
+        train_loader: DataLoader,
+        *,
+        expected_output_size: Optional[int] = None,
+        num_batches: int = DEFAULT_FORWARD_BATCHES,
+    ) -> ForwardCheckResult:
+        """
+        Check the model's forward path using the provided DataLoader.
+
+        The method:
+
+        1. Iterates over the provided DataLoader.
+        2. Passes several batches through the model.
+        3. Checks input, target, and output compatibility.
+        4. Checks the model output size when provided.
+        5. Calculates the loss.
+        6. Raises a helpful error if the loss cannot be calculated.
+        7. Computes the average initial loss.
+
+        Parameters
+        ----------
+        train_loader
+            DataLoader used for the forward-path check.
+
+        expected_output_size
+            Expected size of the model's final output dimension.
+
+            For example, for a 7-class classification problem:
+                expected_output_size=7
+
+        num_batches
+            Maximum number of batches used to calculate the average
+            initial loss.
+
+        Returns
+        -------
+        ForwardCheckResult
+            Information about the verified forward path.
+        """
+
+        if not isinstance(train_loader, DataLoader):
+            raise TypeError(
+                "train_loader must be a torch.utils.data.DataLoader."
+            )
+
+        if num_batches < 1:
+            raise ValueError(
+                "num_batches must be at least 1."
+            )
+
+        # Preserve the original model mode.
+        was_training = self.model.training
+
+        self.model.eval()
+
+        try:
+            losses = []
+
+            first_input_shape = None
+            first_target_shape = None
+            first_output_shape = None
+
+            for batch_index, (inputs, targets) in enumerate(train_loader):
+
+                if batch_index >= num_batches:
+                    break
+
+                if not torch.is_tensor(inputs):
+                    raise TypeError(
+                        "DataLoader inputs must be torch.Tensor objects."
+                    )
+
+                if not torch.is_tensor(targets):
+                    raise TypeError(
+                        "DataLoader targets must be torch.Tensor objects."
+                    )
+
+                with torch.no_grad():
+
+                    # ---------------------------
+                    # Forward pass
+                    # ---------------------------
+                    outputs = self.model(inputs)
+
+                    if not torch.is_tensor(outputs):
+                        raise TypeError(
+                            "The model output must be a torch.Tensor, "
+                            f"but got {type(outputs).__name__}."
+                        )
+
+                    if outputs.ndim == 0:
+                        raise ValueError(
+                            "The model output does not contain "
+                            "a batch dimension."
+                        )
+
+                    # ---------------------------
+                    # Batch-size compatibility
+                    # ---------------------------
+                    if outputs.shape[0] != targets.shape[0]:
+                        raise ValueError(
+                            "Model output batch size does not match "
+                            "target batch size.\n"
+                            f"outputs.shape = {tuple(outputs.shape)}\n"
+                            f"targets.shape = {tuple(targets.shape)}"
+                        )
+
+                    # ---------------------------
+                    # Output-size check
+                    # ---------------------------
+                    if expected_output_size is not None:
+
+                        if outputs.ndim < 2:
+                            raise ValueError(
+                                "expected_output_size was provided, "
+                                "but the model output does not have "
+                                "a class/output dimension.\n"
+                                f"outputs.shape = {tuple(outputs.shape)}"
+                            )
+
+                        actual_output_size = outputs.shape[-1]
+
+                        if actual_output_size != expected_output_size:
+                            raise ValueError(
+                                "Incorrect model output size.\n"
+                                f"Expected output size: "
+                                f"{expected_output_size}\n"
+                                f"Actual output size: "
+                                f"{actual_output_size}\n"
+                                f"outputs.shape = "
+                                f"{tuple(outputs.shape)}"
+                            )
+
+                    # ---------------------------
+                    # Loss calculation
+                    # ---------------------------
+                    try:
+                        loss = self.loss_fn(
+                            outputs,
+                            targets,
+                        )
+
+                    except Exception as exc:
+                        raise ValueError(
+                            "The loss function could not be "
+                            "calculated with the model outputs "
+                            "and targets.\n"
+                            f"outputs.shape = "
+                            f"{tuple(outputs.shape)}\n"
+                            f"targets.shape = "
+                            f"{tuple(targets.shape)}\n"
+                            "Check the model output shape, target "
+                            "shape, target dtype, and loss function."
+                        ) from exc
+
+                    # Loss must be one scalar value.
+                    if (
+                        not torch.is_tensor(loss)
+                        or loss.numel() != 1
+                    ):
+                        raise ValueError(
+                            "loss_fn must return a single scalar "
+                            "tensor."
+                        )
+
+                    loss_value = loss.item()
+
+                    if not math.isfinite(loss_value):
+                        raise ValueError(
+                            "The calculated loss is not finite: "
+                            f"{loss_value}"
+                        )
+
+                losses.append(loss_value)
+
+                if first_input_shape is None:
+                    first_input_shape = tuple(inputs.shape)
+                    first_target_shape = tuple(targets.shape)
+                    first_output_shape = tuple(outputs.shape)
+
+            if not losses:
+                raise ValueError(
+                    "The DataLoader did not produce any batches."
+                )
+
+            average_loss = sum(losses) / len(losses)
+
+            print(
+                f"Input shape:  {first_input_shape}"
+            )
+
+            print(
+                f"Target shape: {first_target_shape}"
+            )
+
+            print(
+                f"Output shape: {first_output_shape}"
+            )
+
+            print(
+                f"Average initial loss "
+                f"({len(losses)} batches): "
+                f"{average_loss:.4f}"
+            )
+
+            return ForwardCheckResult(
+                num_batches=len(losses),
+                average_loss=average_loss,
+                input_shape=first_input_shape,
+                target_shape=first_target_shape,
+                output_shape=first_output_shape,
+            )
+
+        finally:
+            # Restore the model's original mode.
+            if was_training:
+                self.model.train()
