@@ -39,3 +39,58 @@ class BackwardCheckResult:
     target_metric: Optional[float]
     success: Optional[bool]
     automatic_extension_used: bool
+
+
+class ModelChecker:
+    """
+    Verify the forward and backward paths of a PyTorch model.
+
+    The checker provides:
+
+    - Forward-path verification before training.
+    - Small-subset overfitting verification.
+    - Optional metric-based and loss-based success criteria.
+    - Automatic continuation when epochs are not explicitly specified.
+    - Manual continuation on the same subset.
+    """
+
+    DEFAULT_EPOCHS = 500
+    DEFAULT_NUM_SAMPLES = 1000
+    DEFAULT_NUM_BATCHES = 5
+    DEFAULT_FORWARD_BATCHES = 5
+
+    def __init__(
+        self,
+        model: nn.Module,
+        optimizer,
+        loss_fn,
+    ) -> None:
+        """
+        Initialize the ModelChecker.
+
+        Parameters
+        ----------
+        model
+            PyTorch model to check.
+
+        optimizer
+            Optimizer used to update the model during backward checking.
+
+        loss_fn
+            Loss function used to calculate the model loss.
+        """
+        self.model = model
+        self.optimizer = optimizer
+        self.loss_fn = loss_fn
+
+        # State used by backward checking.
+        self._backward_loader: Optional[DataLoader] = None
+        self._trainer: Optional[Trainer] = None
+
+        self._target_metric: Optional[float] = None
+        self._target_loss: Optional[float] = None
+
+        self._backward_initial_loss: Optional[float] = None
+        self._backward_epochs_trained = 0
+
+        self._backward_history: list[dict[str, Optional[float]]] = []

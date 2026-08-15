@@ -8,6 +8,7 @@ from .losses import (
 from .training import (
     Trainer,
     Evaluator,
+    checker,
 )
 
 from .visualization import (

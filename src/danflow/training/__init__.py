@@ -5,3 +5,7 @@ from .trainer import (
     Trainer,
     Evaluator,
 )
+
+from .checker import (
+    ModelChecker,
+)
