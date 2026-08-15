@@ -706,3 +706,50 @@ class ModelChecker:
         self._print_backward_result(result)
 
         return result
+
+    # ------------------------------------------------------------------
+    # Internal backward-training helper
+    # ------------------------------------------------------------------
+
+    def _run_backward_epochs(
+        self,
+        epochs: int,
+    ) -> None:
+        """
+        Train for a specified number of epochs and store the results.
+        """
+
+        if self._trainer is None:
+            raise RuntimeError(
+                "Trainer has not been initialized."
+            )
+
+        with tqdm(
+            range(1, epochs + 1),
+            desc="Backward check",
+            unit="epoch",
+        ) as progress_bar:
+
+            for _ in progress_bar:
+
+                loss, metric = self._trainer.train_epoch(
+                    self._backward_loader
+                )
+
+                self._backward_epochs_trained += 1
+
+                self._backward_history.append(
+                    {
+                        "loss": loss,
+                        "metric": metric,
+                    }
+                )
+
+                postfix = {
+                    "loss": f"{loss:.4f}"
+                }
+
+                if metric is not None:
+                    postfix[self._trainer.metric_name] = f"{metric:.4f}"
+
+                progress_bar.set_postfix(postfix)
