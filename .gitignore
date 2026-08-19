@@ -8,8 +8,9 @@ __pycache__/
 .pytest_cache/
 
 
-# a temporary notebook for testing
+# a temporary file for testing
 temp.ipynb
+temp.py
 
 # VSCode workspace settings
 .vscode/settings.json

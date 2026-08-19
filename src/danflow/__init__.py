@@ -9,6 +9,7 @@ from .training import (
     Trainer,
     Evaluator,
     checker,
+    tuner,
 )
 
 from .visualization import (

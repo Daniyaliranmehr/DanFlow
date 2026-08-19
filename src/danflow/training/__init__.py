@@ -11,3 +11,7 @@ from .checker import (
     ForwardCheckResult,
     BackwardCheckResult,
 )
+
+from .tuner import (
+    LearningRateSelector
+)
