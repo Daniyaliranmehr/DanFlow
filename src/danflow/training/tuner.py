@@ -91,3 +91,37 @@ class LearningRateSelector:
 
         self.weight_decay = weight_decay
         self.epochs = epochs
+
+    def search(
+            self,
+            train_loader: DataLoader
+        ) -> List[Dict[str, Any]]:
+            """
+            Evaluate different learning rates.
+    
+            Parameters
+            ----------
+            train_loader : DataLoader
+                Training data loader used for experiments.
+    
+            Returns
+            -------
+            List[Dict[str, Any]]
+                Results containing learning rate, loss, and metric values.
+            """
+    
+            results = []
+    
+            for learning_rate in self.learning_rates:
+    
+                result = self._train_with_lr(
+                    train_loader,
+                    learning_rate
+                )
+    
+                results.append(result)
+    
+            self._print_summary(results)
+    
+            return results
+    
