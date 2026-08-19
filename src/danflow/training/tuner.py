@@ -92,6 +92,7 @@ class LearningRateSelector:
         self.weight_decay = weight_decay
         self.epochs = epochs
 
+
     def search(
             self,
             train_loader: DataLoader
@@ -193,4 +194,48 @@ class LearningRateSelector:
                 "loss": loss,
                 "metric": metric_value
             }
+
+
+    def _print_summary(
+            self,
+            results: List[Dict[str, Any]]
+        ) -> None:
+            """
+            Print the final comparison table.
     
+            Parameters
+            ----------
+            results : List[Dict[str, Any]]
+                Experiment results.
+            """
+    
+            table = PrettyTable(
+                [
+                    "Learning Rate",
+                    "Metric",
+                    "Loss"
+                ]
+            )
+    
+            for result in results:
+    
+                table.add_row(
+                    [
+                        result["learning_rate"],
+                        f"{result['metric']:.4f}",
+                        f"{result['loss']:.4f}"
+                    ]
+                )
+    
+            print("\nFinal Results")
+            print(table)
+    
+            best = min(
+                results,
+                key=lambda x: x["loss"]
+            )
+    
+            print(
+                f"\nBest learning rate: {best['learning_rate']} "
+                f"(Final loss: {best['loss']:.4f})"
+            )
