@@ -124,4 +124,73 @@ class LearningRateSelector:
             self._print_summary(results)
     
             return results
+
+
+    def _train_with_lr(
+            self,
+            train_loader: DataLoader,
+            learning_rate: float
+        ) -> Dict[str, Any]:
+            """
+            Train a model using a specific learning rate.
+    
+            A copy of the original model is created to ensure that every
+            learning rate experiment starts from the same initial weights.
+    
+            Parameters
+            ----------
+            train_loader : DataLoader
+                Training data loader used for model training.
+    
+            learning_rate : float
+                Learning rate used for the optimizer.
+    
+            Returns
+            -------
+            Dict[str, Any]
+                Final loss and metric values for the experiment.
+            """
+    
+            model = deepcopy(self.model)
+    
+            optimizer = self.optimizer_cls(
+                model.parameters(),
+                lr=learning_rate,
+                weight_decay=self.weight_decay
+            )
+    
+            trainer = self.trainer_cls(
+                model,
+                optimizer,
+                self.loss_fn,
+                self.metric
+            )
+    
+            tqdm.write(f"\nLR={learning_rate}")
+    
+            for epoch in range(self.epochs):
+    
+                with tqdm(
+                    total=1,
+                    desc=f"Epoch {epoch}",
+                    unit="batch"
+                ) as pbar:
+    
+                    loss, metric_value = trainer.train_epoch(
+                        train_loader
+                    )
+    
+                    pbar.set_postfix({
+                        "metric": f"{metric_value:.4f}",
+                        "loss": f"{loss:.4f}"
+                    })
+    
+                    pbar.update(1)
+       
+    
+            return {
+                "learning_rate": learning_rate,
+                "loss": loss,
+                "metric": metric_value
+            }
     
