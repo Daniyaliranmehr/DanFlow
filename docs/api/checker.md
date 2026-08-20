@@ -260,3 +260,72 @@ Final loss:   0.0...
 Final metric: 1.0000
 Result: The model successfully reached the requested overfitting target.
 ```
+
+## continue_backward()
+
+Continues the backward-path overfitting check on the same subset of the training dataset.
+
+The method:
+
+- Continues training from the current model state.
+- Uses the same subset that was created by `backward_check()`.
+- Preserves the current optimizer state.
+- Trains the model for the specified number of additional epochs.
+- Updates the total number of epochs trained.
+- Re-evaluates the requested overfitting targets.
+- Returns the updated backward-check results.
+
+`backward_check()` must be called before using this method.
+
+### Parameters
+
+#### `epochs` : `int`
+
+Number of additional epochs used to continue the backward check.
+
+The value must be at least `1`.
+
+### Returns
+
+A backward-check result containing the updated:
+
+- Initial loss.
+- Final loss.
+- Final metric, if a metric was provided.
+- Total number of epochs trained.
+- Target loss.
+- Target metric.
+- Overfitting success status.
+
+The `automatic_extension_used` value is `False` for results returned by `continue_backward()`.
+
+### Example
+
+```pycon
+>>> result = checker.backward_check(
+...     train_dataset=train_dataset,
+...     num_samples=20,
+...     batch_size=5,
+...     metric=metric,
+...     target_metric=0.99,
+...     target_loss=0.05,
+...     epochs=100,
+...     seed=42,
+... )
+
+Backward check:   ...%|...| 100/100 [...]
+Initial loss: 1.2...
+Final loss:   0.2...
+Final metric: 0.9500
+Result: The model did not reach the requested overfitting target.
+
+>>> result = checker.continue_backward(
+...     epochs=100
+... )
+
+Backward check:   ...%|...| 100/100 [...]
+Initial loss: 1.2...
+Final loss:   0.0...
+Final metric: 1.0000
+Result: The model successfully reached the requested overfitting target.
+```
