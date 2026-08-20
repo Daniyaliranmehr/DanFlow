@@ -329,3 +329,83 @@ Final loss:   0.0...
 Final metric: 1.0000
 Result: The model successfully reached the requested overfitting target.
 ```
+
+## ForwardCheckResult
+
+Stores the results of a forward-path check.
+
+The result contains information about the batches processed during the check, the average loss, and the shapes of the inputs, targets, and model outputs.
+
+### Attributes
+
+#### `num_batches` : `int`
+
+Number of batches processed during the forward check.
+
+#### `average_loss` : `float`
+
+Average loss calculated across the processed batches.
+
+#### `input_shape` : `tuple[int, ...]`
+
+Shape of the input tensor from the first processed batch.
+
+#### `target_shape` : `tuple[int, ...]`
+
+Shape of the target tensor from the first processed batch.
+
+#### `output_shape` : `tuple[int, ...]`
+
+Shape of the model output tensor from the first processed batch.
+
+## BackwardCheckResult
+
+Stores the results of a backward-path overfitting check.
+
+The result contains information about the initial and final loss, the final metric, the number of epochs trained, the requested overfitting targets, and whether those targets were reached.
+
+### Attributes
+
+#### `initial_loss` : `float`
+
+Loss recorded after the first training epoch.
+
+#### `final_loss` : `float`
+
+Loss recorded after the most recently completed training epoch.
+
+#### `final_metric` : `float | None`
+
+Metric value recorded after the most recently completed training epoch.
+
+None if no metric was provided.
+
+#### `epochs_trained` : `int`
+
+Total number of epochs trained during the backward check.
+
+This includes any additional epochs from automatic extension or calls to continue_backward().
+
+#### `target_loss` : `float | None`
+
+Maximum loss specified as the overfitting target.
+
+None if no loss target was provided.
+
+#### `target_metric` : `float | None`
+
+Minimum metric value specified as the overfitting target.
+
+None if no metric target was provided.
+
+#### `success` : `bool | None`
+
+Indicates whether the requested overfitting targets were reached.
+
+True if all requested targets were reached.
+False if at least one requested target was not reached.
+None if no overfitting target was provided.
+
+#### `automatic_extension_used` : `bool`
+
+Indicates whether backward_check() automatically extended the training by another DEFAULT_EPOCHS because the requested target was not reached during the first training phase.
