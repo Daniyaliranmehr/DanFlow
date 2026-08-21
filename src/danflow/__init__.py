@@ -8,8 +8,11 @@ from .losses import (
 from .training import (
     Trainer,
     Evaluator,
-    checker,
-    tuner,
+    ModelChecker,
+    ForwardCheckResult,
+    BackwardCheckResult,
+    LearningRateSelector,
+    SmallGrid,
 )
 
 from .visualization import (
