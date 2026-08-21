@@ -7,6 +7,9 @@ from torch.utils.data import DataLoader
 
 from tqdm import tqdm
 from prettytable import PrettyTable
+from xarray import open_zarr
+
+from danflow.training import Trainer
 
 
 class LearningRateSelector:
@@ -265,6 +268,7 @@ class SmallGrid:
         self.weight_decays = weight_decays
         self.epochs = epochs
 
+
     def search(self,
                    train_loader):
     
@@ -281,4 +285,46 @@ class SmallGrid:
             self._print_summary(results)
     
             return results
+
+
+    def _train(self,
+                   train_loader,
+                   lr,
+                   wd):
+            
+            model = deepcopy(self.model)
+    
+            optimizer = self.optimizer(model.parameters(),
+                                       lr=lr,
+                                       weight_decay=wd)
+    
+            trainer = Trainer(
+                 model,
+                 optimizer=optimizer,
+                 loss_fn=self.loss_fn,
+                 metric=self.metric)
+
+            tqdm.write(f"\nLR={lr} | WD={wd}")
+
+            for epoch in range(self.epochs):
+                with tqdm(total=1,
+                          desc=f"Epoch {epoch}",
+                          unit="batch") as pbar:
+
+                     loss, metric_value = trainer.train_epoch(train_loader)
+
+                     pbar.set_postfix({
+                          "metric": f"{metric_value:.4f}",
+                          "loss": f"{loss:.4f}"
+                     })
+
+                     pbar.update(1)
+
+            return {
+                 "learning_rate": lr,
+                 "weight_decay": wd,
+                 "loss": loss,
+                 "metric": metric_value
+            }
+                      
     
