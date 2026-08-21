@@ -239,3 +239,30 @@ class LearningRateSelector:
                 f"\nBest learning rate: {best['learning_rate']} "
                 f"(Final loss: {best['loss']:.4f})"
             )
+
+
+class SmallGrid:
+    def __init__(self, 
+                 model,
+                 optimizer_cls,
+                 loss_fn,
+                 metric,
+                 learning_rates = None,
+                 learning_rate = None,
+                 weight_decays = [0.0, 1e-4, 1e-5, 1e-6],
+                 epochs = 5
+                 
+    ):
+        self.model = model
+        self.optimizer = optimizer_cls
+        self.loss_fn = loss_fn
+        self.metric = metric
+
+        if learning_rate is None and learning_rates is None:
+            raise ValueError("At least one parameter ('learning_rates' or 'learning_rate') must be provided.")
+        self.learning_rates = learning_rate if learning_rate is not None else learning_rates
+
+        self.weight_decays = weight_decays
+        self.epochs = epochs
+
+     
