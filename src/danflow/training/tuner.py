@@ -277,8 +277,8 @@ class SmallGrid:
                 for wd in self.weight_decays:
     
                     result = self._train(train_loader,
-                                lr,
-                                wd)
+                                            lr,
+                                            wd)
     
                     results.append(result)
     
@@ -326,5 +326,39 @@ class SmallGrid:
                  "loss": loss,
                  "metric": metric_value
             }
+
+
+    def _print_summary(self, 
+                       results):
+
+        table = PrettyTable([
+            "Learning Rate",
+            "Metric",
+            "Loss"
+        ])
+         
+
+        for result in results:
+
+            table.add_row([
+                result["learning_rate"],
+                result["weight-decay"],
+                f"{result['metric']:.4f}",
+                f"{result['loss']:.4f}"
+            ])
+
+        print("\nFinal Results:")
+        print(table)
+
+        best = min(results,
+                   key=lambda x: x["loss"])
+
+        print(
+            f"\nBest configuration: "
+            f"Learning Rate={best['learning_rate']}, "
+            f"Weight Decay={best['weight_decay']} "
+            f"(Final loss: {best['loss']:.4f})"
+        )
+            
                       
     
