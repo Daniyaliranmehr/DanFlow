@@ -13,5 +13,6 @@ from .checker import (
 )
 
 from .tuner import (
-    LearningRateSelector
+    LearningRateSelector,
+    SmallGrid,
 )

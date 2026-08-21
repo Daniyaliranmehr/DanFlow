@@ -359,6 +359,3 @@ class SmallGrid:
             f"Weight Decay={best['weight_decay']} "
             f"(Final loss: {best['loss']:.4f})"
         )
-            
-                      
-    
