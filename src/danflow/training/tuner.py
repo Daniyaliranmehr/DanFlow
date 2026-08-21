@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from prettytable import PrettyTable
 from xarray import open_zarr
+import sys
 
 from danflow.training import Trainer
 
@@ -170,15 +171,14 @@ class LearningRateSelector:
                 self.metric
             )
     
-            tqdm.write(f"\nLR={learning_rate}")
+            tqdm.write(f"LR={learning_rate}")
     
             for epoch in range(self.epochs):
     
                 with tqdm(
                     total=1,
                     desc=f"Epoch {epoch}",
-                    unit="batch"
-                ) as pbar:
+                    unit="batch") as pbar:
     
                     loss, metric_value = trainer.train_epoch(
                         train_loader
@@ -190,8 +190,9 @@ class LearningRateSelector:
                     })
     
                     pbar.update(1)
-       
-    
+
+            tqdm.write("")
+
             return {
                 "learning_rate": learning_rate,
                 "loss": loss,
@@ -304,7 +305,7 @@ class SmallGrid:
                  loss_fn=self.loss_fn,
                  metric=self.metric)
 
-            tqdm.write(f"\nLR={lr} | WD={wd}")
+            tqdm.write(f"LR={lr} | WD={wd}")
 
             for epoch in range(self.epochs):
                 with tqdm(total=1,
@@ -320,6 +321,8 @@ class SmallGrid:
 
                      pbar.update(1)
 
+            tqdm.write("")
+
             return {
                  "learning_rate": lr,
                  "weight_decay": wd,
@@ -333,6 +336,7 @@ class SmallGrid:
 
         table = PrettyTable([
             "Learning Rate",
+            "Weight Decay",
             "Metric",
             "Loss"
         ])
@@ -342,7 +346,7 @@ class SmallGrid:
 
             table.add_row([
                 result["learning_rate"],
-                result["weight-decay"],
+                result["weight_decay"],
                 f"{result['metric']:.4f}",
                 f"{result['loss']:.4f}"
             ])
