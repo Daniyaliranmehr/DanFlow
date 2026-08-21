@@ -265,4 +265,20 @@ class SmallGrid:
         self.weight_decays = weight_decays
         self.epochs = epochs
 
-     
+    def search(self,
+                   train_loader):
+    
+            results = []
+            for lr in self.learning_rates:
+                for wd in self.weight_decays:
+    
+                    result = self._train(train_loader,
+                                lr,
+                                wd)
+    
+                    results.append(result)
+    
+            self._print_summary(results)
+    
+            return results
+    
