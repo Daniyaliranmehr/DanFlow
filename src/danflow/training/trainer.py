@@ -4,7 +4,7 @@ from torch import nn
 import torch
 from torch.optim import Optimizer
 from typing import Optional, Callable
-from tqdm.auto import tqdm
+from tqdm import tqdm
 from rich.table import Table
 from rich.console import Console
 
