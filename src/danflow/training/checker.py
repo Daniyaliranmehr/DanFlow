@@ -7,7 +7,7 @@ from typing import Optional
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, random_split
-from tqdm.auto import tqdm
+from tqdm import tqdm
 
 from .trainer import Trainer
 
