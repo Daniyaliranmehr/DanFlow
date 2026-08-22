@@ -36,7 +36,6 @@ class LearningRateSelector:
     def __init__(
         self,
         model: nn.Module,
-        trainer_cls: type,
         optimizer_cls: type[Optimizer],
         loss_fn: Callable,
         metric: Optional[object] = None,
@@ -51,9 +50,6 @@ class LearningRateSelector:
         ----------
         model : nn.Module
             Neural network model to evaluate.
-
-        trainer_cls : type
-            Trainer class used for model training.
 
         optimizer_cls : type
             Optimizer class used to update model parameters.
@@ -80,7 +76,6 @@ class LearningRateSelector:
         """
 
         self.model = model
-        self.trainer_cls = trainer_cls
         self.optimizer_cls = optimizer_cls
         self.loss_fn = loss_fn
         self.metric = metric
@@ -162,11 +157,11 @@ class LearningRateSelector:
                 weight_decay=self.weight_decay
             )
     
-            trainer = self.trainer_cls(
+            trainer = Trainer(
                 model,
-                optimizer,
-                self.loss_fn,
-                self.metric
+                optimizer=optimizer,
+                loss_fn=self.loss_fn,
+                metric=self.metric
             )
     
             tqdm.write(f"LR={learning_rate}")
@@ -178,9 +173,7 @@ class LearningRateSelector:
                     desc=f"Epoch {epoch}",
                     unit="batch") as pbar:
     
-                    loss, metric_value = trainer.train_epoch(
-                        train_loader
-                    )
+                    loss, metric_value = trainer.train_epoch(train_loader)
     
                     pbar.set_postfix({
                         "metric": f"{metric_value:.4f}",
@@ -196,7 +189,6 @@ class LearningRateSelector:
                 "loss": loss,
                 "metric": metric_value
             }
-
 
     def _print_summary(
             self,
