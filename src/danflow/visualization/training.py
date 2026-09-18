@@ -51,18 +51,18 @@ def plot_training_history(
     ax1.plot(
         epochs,
         history["train_loss"],
-        color="tab:blue",
+        color="tab:#00d9ff",
         linewidth=2,
-        linestyle="-",
+        linestyle="--",
         label="Train Loss",
     )
 
     ax1.plot(
         epochs,
         history["valid_loss"],
-        color="#00d9ff",
+        color="blue",
         linewidth=2,
-        linestyle="--",
+        linestyle="-",
         label="Validation Loss",
     )
 
@@ -102,18 +102,18 @@ def plot_training_history(
         ax2.plot(
             epochs,
             history["train_metric"],
-            color="#8400ff",
+            color="#a373c7",
             linewidth=2,
-            linestyle="-",
+            linestyle="--",
             label=f"Train {metric_name}",
         )
 
         ax2.plot(
             epochs,
             history["valid_metric"],
-            color="#a373c7",
+            color="#8400ff",
             linewidth=2,
-            linestyle="--",
+            linestyle="-",
             label=f"Valid {metric_name}",
         )
 
