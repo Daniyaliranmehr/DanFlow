@@ -1,18 +1,11 @@
 # Data Preparation
 
-This example demonstrates a practical data preparation workflow with DanFlow and pandas.
+This example demonstrates a complete data preparation workflow with DanFlow.
 
-The workflow starts with a delimited text file stored inside a ZIP archive, converts the raw data to CSV, and loads the result into a pandas `DataFrame`.
+The workflow starts with a delimited text file stored inside a ZIP archive, extracts the archive, converts the text file to CSV, and loads the resulting CSV into a pandas DataFrame.
 
-The DanFlow utilities used in this example are:
+The same workflow can be used as a starting point before preprocessing, visualization, or model training.
 
-```python
-from danflow.data import (
-    extract_zip,
-    delimited_to_csv,
-    load_csv,
-)
-```
 
 ## Input Data
 
@@ -55,10 +48,9 @@ feature_1 feature_2 label
 ```
 
 
-## Converting the Delimited File
+## Convert the Text File to CSV
 
-The extracted file uses spaces as separators. Convert it to CSV by specifying the delimiter:
-
+The extracted file is space-delimited, so specify a single space as the delimiter.
 ```python
 from danflow.data import delimited_to_csv
 
@@ -69,19 +61,7 @@ delimited_to_csv(
 )
 ```
 
-### Input
-
-```text
-feature_1 feature_2 label
-1 10 0
-2 20 1
-3 30 0
-4 40 1
-5 50 1
-```
-
-### Output
-
+The resulting CSV file is:
 ```csv
 feature_1,feature_2,label
 1,10,0
@@ -90,41 +70,6 @@ feature_1,feature_2,label
 4,40,1
 5,50,1
 ```
-
-The same conversion can be performed for other delimiters.
-
-For example, given:
-
-```text
-feature_1|feature_2|label
-1|10|0
-2|20|1
-3|30|0
-4|40|1
-5|50|1
-```
-
-use:
-
-```python
-delimited_to_csv(
-    "data/dataset.txt",
-    "data/dataset.csv",
-    delimiter="|",
-)
-```
-
-The resulting CSV is:
-
-```csv
-feature_1,feature_2,label
-1,10,0
-2,20,1
-3,30,0
-4,40,1
-5,50,1
-```
-
 
 ## Loading the CSV
 
@@ -172,6 +117,41 @@ For example, `head()` can be used to inspect the first records:
 ```
 
 
+## Using a Different Delimiter
+
+The same conversion workflow can be used when the input file uses another delimiter.
+
+For example, suppose a separate file uses `|`:
+```text
+feature_1|feature_2|label
+1|10|0
+2|20|1
+3|30|0
+4|40|1
+5|50|1
+```
+
+Convert this file by specifying `|`:
+```python
+delimited_to_csv(
+    "data/pipe_dataset.txt",
+    "data/pipe_dataset.csv",
+    delimiter="|",
+)
+```
+The resulting CSV is:
+```csv
+feature_1,feature_2,label
+1,10,0
+2,20,1
+3,30,0
+4,40,1
+5,50,1
+```
+
+The input and output paths are kept separate from the main example to make it clear that this is a different source file.
+
+
 ## Handling Empty Lines
 
 Delimited files may contain empty lines between records.
@@ -209,8 +189,7 @@ feature_1,feature_2,label
 
 ## Complete Workflow
 
-The complete workflow can be expressed in a single script:
-
+The complete workflow can be reduced to three DanFlow operations:
 ```python
 import pandas as pd
 
@@ -232,30 +211,22 @@ delimited_to_csv(
 )
 
 df = load_csv("data/dataset.csv")
-
-print(df)
-print(df.shape)
-print(df.columns.tolist())
-
-assert isinstance(df, pd.DataFrame)
+```
+The resulting `DataFrame` can then be passed to the next stage of the machine-learning workflow.
+```pycon
+>>> df.shape
+(5, 3)
 ```
 
-Running the inspection code produces:
-
 ```pycon
->>> print(df)
-   feature_1  feature_2  label
-0          1         10      0
-1          2         20      1
-2          3         30      0
-3          4         40      1
-4          5         50      1
-
->>> print(df.shape)
-(5, 3)
-
->>> print(df.columns.tolist())
+>>> df.columns.tolist()
 ['feature_1', 'feature_2', 'label']
 ```
 
-The resulting `DataFrame` can now be passed directly to pandas operations or other DanFlow utilities for further analysis.
+```pycon
+>>> isinstance(df, pd.DataFrame)
+True
+```
+
+
+At this point, the raw dataset has been extracted, converted into a standard CSV format, and loaded into a pandas DataFrame ready for further processing.
