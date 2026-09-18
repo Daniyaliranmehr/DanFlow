@@ -176,3 +176,208 @@ def plot_training_history(
 
     plt.show()
     plt.close(fig)
+
+
+def plot_loss_history(
+    history: Dict[str, List[float]],
+    name: str,
+    save_path: Optional[str | Path] = None,
+    show_best_loss: bool = False,
+    figsize: tuple[int, int] = (10, 5),
+) -> None:
+    """
+    Plot training and validation loss over epochs.
+
+    Parameters
+    ----------
+    history
+        Dictionary returned by Trainer.fit().
+        Expected keys:
+        - "train_loss"
+        - "valid_loss"
+        - "best_loss_epoch" (optional)
+
+    name
+        Name of the experiment or model (used in title).
+
+    save_path
+        Optional path where the figure will be saved.
+        If provided, the plot is saved to this location before being displayed.
+        If None, the figure is not saved.
+
+    show_best_loss
+        If True and "best_loss_epoch" is present in history, marks the
+        best validation loss with a star.
+
+    figsize
+        Size of the matplotlib figure.
+
+    Returns
+    -------
+        This function does not return anything. It only displays and/or saves the plot.
+    """
+
+    epochs = range(1, len(history["train_loss"]) + 1)
+
+    fig, ax1 = plt.subplots(figsize=figsize)
+
+    ax1.plot(
+        epochs,
+        history["train_loss"],
+        color="#00d9ff",
+        linewidth=2,
+        linestyle="--",
+        label="Train Loss",
+    )
+
+    ax1.plot(
+        epochs,
+        history["valid_loss"],
+        color="blue",
+        linewidth=2,
+        linestyle="-",
+        label="Validation Loss",
+    )
+
+    # -------------------------
+    # Mark best validation loss
+    # -------------------------
+
+    if show_best_loss and "best_loss_epoch" in history:
+        idx = history["best_loss_epoch"] - 1
+
+        ax1.scatter(
+            idx + 1,
+            history["valid_loss"][idx],
+            color="#002677",
+            marker="*",
+            s=100,
+            zorder=5,
+            label="Best Validation Loss",
+        )
+
+    ax1.set_xlabel("Epoch")
+    ax1.set_ylabel("Loss")
+    ax1.set_title(f"Loss History - {name}")
+    ax1.grid(True, linestyle="--", alpha=0.5)
+
+    ax1.legend(loc="upper left", bbox_to_anchor=(1.02, 1.0), frameon=True)
+
+    fig.subplots_adjust(right=0.80)
+
+    if save_path is not None:
+        save_path = Path(save_path)
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+
+        fig.savefig(
+            save_path,
+            dpi=300,
+            bbox_inches="tight",
+        )
+
+    plt.show()
+    plt.close(fig)
+
+
+def plot_metric_history(
+    history: Dict[str, List[float]],
+    name: str,
+    save_path: Optional[str | Path] = None,
+    show_best_metric: bool = False,
+    figsize: tuple[int, int] = (10, 5),
+) -> None:
+    """
+    Plot training and validation metric over epochs.
+
+    Parameters
+    ----------
+    history
+        Dictionary returned by Trainer.fit().
+        Expected keys:
+        - "train_metric"
+        - "valid_metric"
+        - "metric_name" (optional, used for axis label and legend)
+        - "best_metric_epoch" (optional)
+
+    name
+        Name of the experiment or model (used in title).
+
+    save_path
+        Optional path where the figure will be saved.
+        If provided, the plot is saved to this location before being displayed.
+        If None, the figure is not saved.
+
+    show_best_metric
+        If True and "best_metric_epoch" is present in history, marks the
+        best validation metric with a star.
+
+    figsize
+        Size of the matplotlib figure.
+
+    Returns
+    -------
+        This function does not return anything. It only displays and/or saves the plot.
+    """
+
+    metric_name = history.get("metric_name", "Metric")
+
+    epochs = range(1, len(history["train_metric"]) + 1)
+
+    fig, ax1 = plt.subplots(figsize=figsize)
+
+    ax1.plot(
+        epochs,
+        history["train_metric"],
+        color="#a373c7",
+        linewidth=2,
+        linestyle="--",
+        label=f"Train {metric_name}",
+    )
+
+    ax1.plot(
+        epochs,
+        history["valid_metric"],
+        color="#8400ff",
+        linewidth=2,
+        linestyle="-",
+        label=f"Valid {metric_name}",
+    )
+
+    # ---------------------------
+    # Mark best validation metric
+    # ---------------------------
+
+    if show_best_metric and "best_metric_epoch" in history:
+        idx = history["best_metric_epoch"] - 1
+
+        ax1.scatter(
+            idx + 1,
+            history["valid_metric"][idx],
+            color="#340064",
+            marker="*",
+            s=100,
+            zorder=5,
+            label=f"Best {metric_name}",
+        )
+
+    ax1.set_xlabel("Epoch")
+    ax1.set_ylabel(metric_name)
+    ax1.set_title(f"{metric_name} History - {name}")
+    ax1.grid(True, linestyle="--", alpha=0.5)
+
+    ax1.legend(loc="upper left", bbox_to_anchor=(1.02, 1.0), frameon=True)
+
+    fig.subplots_adjust(right=0.80)
+
+    if save_path is not None:
+        save_path = Path(save_path)
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+
+        fig.savefig(
+            save_path,
+            dpi=300,
+            bbox_inches="tight",
+        )
+
+    plt.show()
+    plt.close(fig)

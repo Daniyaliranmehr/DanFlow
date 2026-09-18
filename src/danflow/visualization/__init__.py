@@ -2,6 +2,8 @@
 
 from .training import (
     plot_training_history,
+    plot_loss_history,
+    plot_metric_history,
 )
 
 from .data import (

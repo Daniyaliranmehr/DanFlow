@@ -22,6 +22,8 @@ from .visualization import (
     plot_multi_histograms,
     plot_boxplot,
     plot_multi_boxplots,
+    plot_metric_history,
+    plot_loss_history,
 )
 
 from .data import (
