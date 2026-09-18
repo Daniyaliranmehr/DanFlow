@@ -4,7 +4,7 @@ from torch import nn
 import torch
 from torch.optim import Optimizer
 from typing import Optional, Callable
-from tqdm import tqdm
+from tqdm.auto import tqdm
 from rich.table import Table
 from rich.console import Console
 
@@ -294,9 +294,9 @@ class Trainer:
 
             epoch_bar.set_postfix_str(postfix)
 
-            # ===================
-            # Epoch Summary Table
-            # ===================
+            # -------------------------
+            # Persistent table
+            # -------------------------
 
             table = Table(
                 title=f"Epoch {epoch}",
@@ -334,7 +334,7 @@ class Trainer:
             "best_valid_metric": best_valid_metric,
             "best_metric_epoch": best_metric_epoch,
         }
-
+    
 
 class Evaluator:
     """
