@@ -27,21 +27,32 @@ def plot_training_history(
         - "train_metric" (optional)
         - "valid_metric" (optional)
         - "metric_name" (optional)
+        - "best_loss_epoch" (optional)
+        - "best_metric_epoch" (optional)
 
     name
-        Name of the experiment or model (used in title).
+        Name of the experiment or model (used in the plot title).
 
     save_path
         Optional path where the figure will be saved.
         If provided, the plot is saved to this location before being displayed.
         If None, the figure is not saved.
 
+    show_best_loss
+        Whether to mark the epoch with the best validation loss on the plot.
+        Requires "best_loss_epoch" to be present in history.
+
+    show_best_metric
+        Whether to mark the epoch with the best validation metric on the plot.
+        Requires "best_metric_epoch" to be present in history.
+
     figsize
         Size of the matplotlib figure.
 
     Returns
     -------
-        This function does not return anything. It only displays and/or saves the plot.
+    None
+        This function only displays and/or saves the plot.
     """
 
     epochs = range(1, len(history["train_loss"]) + 1)
