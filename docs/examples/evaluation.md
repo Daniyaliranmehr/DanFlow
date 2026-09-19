@@ -2,173 +2,118 @@
 
 This example demonstrates how to evaluate an already-trained PyTorch model on a separate test set using DanFlow.
 
-The training process is intentionally omitted. The workflow starts with a trained model, its saved parameters, and a test dataset.
+The training process is intentionally omitted. The example assumes that the training workflow has already produced a checkpoint such as `best_model.pth`.
 
-The typical evaluation workflow is:
+The evaluation workflow is:
 
-1. Load the trained model.
-2. Restore its learned parameters.
-3. Prepare the test `DataLoader`.
-4. Create an `Evaluator`.
-5. Run `test()`.
-6. Inspect the evaluation results.
+Trained Checkpoint:
+-    Model Architecture
+-    Saved Parameters
 
 
-## Start with a Trained Model
+Test Data:
+-    Input Tensors
+-    Target Tensors
 
-Assume that the model architecture has already been defined and trained.
 
-For this example, use the same binary classification architecture from the training workflow.
+Evaluation
+-    Evaluator
+-   Test Results
+
+
+## Recreate the Model Architecture
+
+The model architecture must match the architecture that was used during training.
+
+For this example, use the same binary-classification model from the training workflow.
+
+```python
+import torch.nn as nn
+
+def build_model():
+    return nn.Sequential(
+        nn.Linear(10, 32),
+        nn.ReLU(),
+        nn.Linear(32, 2),
+    )
+
+model = build_model()
+```
+
+At this point, `model` contains the network structure but not the parameters learned during training.
+
+
+## Load the Trained Checkpoint
+
+Assume that the training workflow saved the best model to `best_model.pth`.
+
+Load the checkpoint:
 
 ```python
 import torch
-import torch.nn as nn
 
-model = nn.Sequential(
-    nn.Linear(in_features=10, out_features=32, bias=True),
-    nn.ReLU(),
-    nn.Linear(in_features=32, out_features=2, bias=True),
-)
-```
-
-
-At this point, the model object only defines the architecture. The learned parameters must be restored from the trained checkpoint.
-
-
-## Load the Trained Model Parameters
-
-Assume that the trained model was saved previously.
-
-```python
 checkpoint = torch.load(
-    "artifacts/model.pth",
+    "best_model.pth",
     map_location="cpu",
-)
-
-model.load_state_dict(
-    checkpoint,
+    weights_only=True,
 )
 ```
+
+The checkpoint contains the model state together with training metadata:
 
 ```pycon
 >>> checkpoint.keys()
-odict_keys([
-    '0.weight',
-    '0.bias',
-    '2.weight',
-    '2.bias'
-])
-
->>> model.training
-True
+dict_keys(['model_state_dict', 'optimizer_state_dict', 'epoch', 'best_valid_loss'])
 ```
 
-The model now contains the parameters learned during training.
+Load the saved model parameters:
 
-The optimizer used during training is not required when performing a standard test-set evaluation.
+```python
+model.load_state_dict(
+    checkpoint["model_state_dict"],
+)
+```
+
+The model now contains the parameters saved during training.
+
+The optimizer state is not required for a standard test-set evaluation.
 
 
 ## Prepare the Test Dataset
 
-The test set must be kept separate from the training data.
+Create a separate test set that was not used during training or hyperparameter selection.
 
-Assume that `test_dataset` has already been prepared using the same preprocessing and feature representation used during training.
+For this example, generate a deterministic synthetic test set using the same feature representation as the training data.
 
 ```python
-from torch.utils.data import DataLoader
+import torch
 
-test_loader = DataLoader(
-    test_dataset,
-    batch_size=32,
-    shuffle=False,
-)
+torch.manual_seed(123)
+
+x_test = torch.randn(200, 10)
+y_test = (x_test.sum(dim=1) > 0).long()
+```
+
+Check the tensor shapes:
+
+```pycon
+>>> x_test.shape
+torch.Size([200, 10])
 ```
 
 ```pycon
->>> len(test_loader)
-7
-
->>> next(iter(test_loader))[0].shape
-torch.Size([32, 10])
-
->>> next(iter(test_loader))[1].shape
-torch.Size([32])
+>>> y_test.shape
+torch.Size([200])
 ```
 
-For evaluation, `shuffle=False` is generally preferred because the order of samples does not need to be randomized.
+The test inputs have the same 10-feature representation expected by the model.
 
 
-## Create the `Evaluator`
+## Create the Evaluator
 
-Now create an evaluator for the already-trained model.
+Create an accuracy function for the test metric.
 
-```python
-from danflow.evaluation import Evaluator
-
-evaluator = Evaluator(
-    model=model,
-    loss_fn=nn.CrossEntropyLoss(),
-)
-```
-
-The evaluator is now ready to process the test `DataLoader`.
-
-
-## Evaluate the Model on the Test Set
-
-Run the evaluation using `test()`.
-
-```python
-result = evaluator.test(
-    test_loader,
-)
-
-print(result)
-```
-
-```pycon
-TestResult(
-    loss=0.2847,
-    metric=0.8914
-)
-```
-
-The test run evaluates the trained model on the complete test set without updating its parameters.
-
-The returned result provides the final evaluation values produced by the evaluator.
-
-
-## Inspect the Evaluation Results
-
-The returned result can be assigned to variables when the individual values are needed.
-
-```python
-loss, metric = evaluator.test(
-    test_loader,
-)
-
-print("Test loss:", loss)
-print("Test metric:", metric)
-```
-
-```pycon
-Test loss: 0.2847
-Test metric: 0.8914
-```
-
-This gives two important pieces of information:
-
-* **Test loss** measures the model's prediction error according to the configured loss function.
-* **Test metric** measures the model's performance according to the configured metric.
-
-A lower loss is generally preferable, while the interpretation of the metric depends on the metric itself.
-
-
-## Evaluate with a Metric
-
-For a more informative evaluation, a metric can be supplied when creating the evaluator.
-
-For example, define a simple accuracy metric:
+The evaluator accepts a callable metric that receives model outputs and target labels.
 
 ```python
 def accuracy(outputs, targets):
@@ -176,17 +121,11 @@ def accuracy(outputs, targets):
     return (predictions == targets).float().mean()
 ```
 
-```pycon
->>> accuracy(
-...     torch.tensor([[2.0, 1.0], [0.5, 2.0]]),
-...     torch.tensor([0, 1]),
-... )
-tensor(1.)
-```
-
-Create the evaluator with the metric:
+Create the evaluator:
 
 ```python
+from danflow.training import Evaluator
+
 evaluator = Evaluator(
     model=model,
     loss_fn=nn.CrossEntropyLoss(),
@@ -194,119 +133,140 @@ evaluator = Evaluator(
 )
 ```
 
+The evaluator is now ready to evaluate the model on the test tensors.
 
-Run the test again:
+
+## Evaluate the Model
+
+Run the test evaluation using the test inputs and targets.
 
 ```python
-loss, accuracy_value = evaluator.test(
-    test_loader,
+result = evaluator.test(
+    x_test,
+    y_test,
 )
+```
 
-print("Test loss:", loss)
-print("Test accuracy:", accuracy_value)
+`Evaluator.test()` returns a dictionary containing the configured metric and the loss.
+
+Inspect its keys:
+
+```pycon
+>>> list(result.keys())
+['Metric', 'Loss']
+```
+
+The individual values can be accessed directly:
+
+```pycon
+>>> result["Metric"]
+0.0
 ```
 
 ```pycon
-Test loss: 0.2847
-Test accuracy: 0.8914
+>>> result["Loss"]
+0.0
 ```
 
-The metric now provides a more directly interpretable measure of test-set performance.
+The numerical values depend on the trained checkpoint and therefore should be read from the actual evaluation run rather than hard-coded in the documentation.
 
-
-## Compare Test Performance with Training Performance
-
-The test set should be used only after model development and training are complete.
-
-For example, suppose the final training and validation results were:
-
-```text
-Training accuracy:   0.9420
-Validation accuracy: 0.9135
-Test accuracy:       0.8914
+For readable reporting:
+```python
+print(f"Test loss: {result['Loss']:.4f}")
+print(f"Test accuracy: {result['Metric']:.4f}")
 ```
 
-The test result is lower than the training and validation performance.
 
-```pycon
->>> 0.9420 - 0.8914
-0.05059999999999998
-```
+## Complete Evaluation Workflow
 
-This gap can indicate that the model performs better on data it has seen during development than on completely held-out data.
-
-The important point is that the test set provides an independent estimate of how the trained model performs on unseen data.
-
-
-## A Complete Evaluation Workflow
-
-The complete evaluation stage can be kept very small because the model has already been trained.
+The complete evaluation stage can now be kept small because the model has already been trained.
 
 ```python
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
-from danflow.evaluation import Evaluator
 
-model = nn.Sequential(
-    nn.Linear(10, 32),
-    nn.ReLU(),
-    nn.Linear(32, 2),
-)
+from danflow.training import Evaluator
 
+
+def build_model():
+    return nn.Sequential(
+        nn.Linear(10, 32),
+        nn.ReLU(),
+        nn.Linear(32, 2),
+    )
+
+
+def accuracy(outputs, targets):
+    predictions = outputs.argmax(dim=1)
+    return (predictions == targets).float().mean()
+
+
+# Recreate the model architecture
+model = build_model()
+
+# Load the trained checkpoint
 checkpoint = torch.load(
-    "artifacts/model.pth",
+    "best_model.pth",
     map_location="cpu",
+    weights_only=True,
 )
 
 model.load_state_dict(
-    checkpoint,
+    checkpoint["model_state_dict"],
 )
 
-test_loader = DataLoader(
-    test_dataset,
-    batch_size=32,
-    shuffle=False,
-)
+# Prepare the test set
+torch.manual_seed(123)
 
+x_test = torch.randn(200, 10)
+y_test = (x_test.sum(dim=1) > 0).long()
+
+# Create the evaluator
 evaluator = Evaluator(
     model=model,
     loss_fn=nn.CrossEntropyLoss(),
     metric=accuracy,
 )
 
-loss, metric_value = evaluator.test(
-    test_loader,
+# Evaluate
+result = evaluator.test(
+    x_test,
+    y_test,
 )
 
-print("Test loss:", loss)
-print("Test metric:", metric_value)
+print(f"Test loss: {result['Loss']:.4f}")
+print(f"Test accuracy: {result['Metric']:.4f}")
 ```
+
+The result is a dictionary containing the evaluation metric and loss:
 
 ```pycon
-Test loss: 0.2847
-Test metric: 0.8914
+>>> list(result.keys())
+['Metric', 'Loss']
 ```
 
-At this stage, the training workflow is complete. The reported values represent the model's performance on the held-out test set.
+The numerical values depend on the trained checkpoint used for the example.
 
+## Evaluation Workflow
 
-## Practical Interpretation
+The complete evaluation process consists of these stages:
 
-The evaluation stage should answer a simple question:
+Model Preparation:
+-    Recreate the model architecture
+-    Load the trained checkpoint
 
-> How well does the final trained model perform on data that was not used for training?
+Test Data:
+-    Prepare test inputs
+-    Prepare test targets
 
-For example:
+Evaluation:
+-    Create Evaluator
+-    Run test()
 
-```pycon
->>> print(f"Test loss: {loss:.4f}")
-Test loss: 0.2847
+Results:
+-    Test Loss
+-    Test Metric
 
->>> print(f"Test accuracy: {metric_value:.4f}")
-Test accuracy: 0.8914
-```
+At this point, the model has been evaluated on data that was not used during training or hyperparameter selection.
 
-These values can then be used when reporting the final model performance, comparing different trained models, or deciding whether further model development is necessary.
-
-The test set should remain untouched during training and hyperparameter selection so that its final evaluation remains an unbiased estimate of generalization performance.
+The resulting test loss and metric can be reported alongside the training and validation results when documenting the final model performance.
