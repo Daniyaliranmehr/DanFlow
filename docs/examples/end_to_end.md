@@ -1,193 +1,208 @@
 # End-to-End
 
-This example demonstrates a complete machine-learning workflow using DanFlow.
+This example demonstrates a complete machine-learning workflow with DanFlow, from dataset preparation to final model evaluation and training-history visualization.
 
-The goal is to show how the different DanFlow components can be combined in a realistic project, starting from prepared data and ending with final model evaluation.
+The example uses a synthetic binary-classification dataset and combines DanFlow's model checking, hyperparameter tuning, training, evaluation, and visualization utilities in one workflow.
 
-The workflow is:
+The workflow is organized into the following stages:
 
-1. Prepare the dataset.
-2. Create training and validation loaders.
-3. Define the model.
-4. Define the loss function and optimizer.
-5. Check the model before full training.
-6. Search for suitable hyperparameters.
-7. Train the final model.
-8. Evaluate the trained model on the test set.
-9. Visualize the training history.
+```text
+Data Preparation
+    Dataset
+    Train / Validation / Test Split
 
-The model in this example performs binary classification on numerical features.
+Model Setup
+    Model
+    Loss
+    Optimizer
+    Metric
 
+Validation & Tuning
+    ModelChecker
+    LearningRateSelector
+    SmallGrid
 
-## Prepare the Data
+Final Training
+    Final Model
+    Trainer.fit()
+    Best Checkpoint
 
-Start with a numerical dataset containing input features and a target column.
+Evaluation
+    Load Checkpoint
+    Evaluator
+    Test Results
 
-```python id="e2edata1"
-import pandas as pd
-
-data = pd.DataFrame({
-    "feature_1": [10, 12, 13, 15, 17, 18, 20, 22, 24, 25],
-    "feature_2": [8, 11, 12, 14, 16, 17, 19, 21, 23, 24],
-    "feature_3": [30, 28, 27, 25, 24, 22, 20, 19, 17, 16],
-    "feature_4": [5, 7, 6, 9, 8, 11, 10, 13, 12, 14],
-    "target":    [0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
-})
+Visualization
+    Loss History
+    Metric History
+    Training History
 ```
 
-```pycon id="e2edata2"
->>> data.shape
-(10, 5)
+## Prepare the Dataset
 
->>> data["target"].value_counts().sort_index()
-0    5
-1    5
-Name: target, dtype: int64
-```
+Create a synthetic binary-classification dataset with four numerical features.
 
-Separate the features from the target:
+The target is generated from a linear combination of the input features.
 
-```python id="e2edata3"
+```python id="0p2x7d"
 import torch
 
-x = torch.tensor(
-    data.drop(columns="target").values,
-    dtype=torch.float32,
+torch.manual_seed(42)
+
+x = torch.randn(600, 4)
+
+score = (
+    1.5 * x[:, 0]
+    + 0.8 * x[:, 1]
+    - 0.5 * x[:, 2]
+    + 0.2 * x[:, 3]
 )
 
-y = torch.tensor(
-    data["target"].values,
-    dtype=torch.long,
+y = (score > 0).long()
+```
+
+Create deterministic train, validation, and test splits:
+
+```python id="8ohqis"
+indices = torch.randperm(
+    len(x),
+    generator=torch.Generator().manual_seed(42),
 )
+
+train_indices = indices[:360]
+valid_indices = indices[360:480]
+test_indices = indices[480:]
+
+x_train = x[train_indices]
+y_train = y[train_indices]
+
+x_valid = x[valid_indices]
+y_valid = y[valid_indices]
+
+x_test = x[test_indices]
+y_test = y[test_indices]
 ```
 
-```pycon id="e2edata4"
->>> x.shape
-torch.Size([10, 4])
+Check the resulting splits:
 
->>> y.shape
-torch.Size([10])
+```pycon id="vw1pxv"
+>>> x_train.shape
+torch.Size([360, 4])
+
+>>> x_valid.shape
+torch.Size([120, 4])
+
+>>> x_test.shape
+torch.Size([120, 4])
+
+>>> y_train.shape
+torch.Size([360])
+
+>>> y_valid.shape
+torch.Size([120])
+
+>>> y_test.shape
+torch.Size([120])
 ```
 
-For a real project, this stage can also include DanFlow's data-preparation utilities documented in `data_preparation.md`.
+The test set is kept separate from the training and validation data and will only be used after the final model has been trained.
 
+## Create the DataLoaders
 
-## Create the Dataset and DataLoaders
+Wrap the training and validation tensors in PyTorch datasets and data loaders.
 
-Create a PyTorch dataset from the prepared tensors.
+```python id="s6gfns"
+from torch.utils.data import DataLoader, TensorDataset
 
-```python id="e2eload1"
-from torch.utils.data import TensorDataset, DataLoader, random_split
+train_dataset = TensorDataset(
+    x_train,
+    y_train,
+)
 
-dataset = TensorDataset(x, y)
-
-train_size = 6
-validation_size = 2
-test_size = 2
-
-train_dataset, validation_dataset, test_dataset = random_split(
-    dataset,
-    [train_size, validation_size, test_size],
+valid_dataset = TensorDataset(
+    x_valid,
+    y_valid,
 )
 
 train_loader = DataLoader(
     train_dataset,
-    batch_size=2,
+    batch_size=32,
     shuffle=True,
 )
 
-validation_loader = DataLoader(
-    validation_dataset,
-    batch_size=2,
-    shuffle=False,
-)
-
-test_loader = DataLoader(
-    test_dataset,
-    batch_size=2,
+valid_loader = DataLoader(
+    valid_dataset,
+    batch_size=32,
     shuffle=False,
 )
 ```
 
-```pycon id="e2eload2"
->>> len(train_dataset)
-6
-
->>> len(validation_dataset)
-2
-
->>> len(test_dataset)
-2
-
->>> len(train_loader)
-3
-
->>> len(validation_loader)
-1
-
->>> len(test_loader)
-1
-```
-
-The training loader is shuffled, while the validation and test loaders are not.
-
+The test tensors are kept available directly because `Evaluator.test()` accepts tensors rather than a `DataLoader`.
 
 ## Define the Model
 
-Create a simple neural network for binary classification.
+Create a small feed-forward classifier with two output classes.
 
-```python id="e2emodel1"
+```python id="48l5n0"
 import torch.nn as nn
 
-model = nn.Sequential(
-    nn.Linear(4, 16),
-    nn.ReLU(),
-    nn.Linear(16, 2),
-)
+
+def build_model():
+    return nn.Sequential(
+        nn.Linear(4, 16),
+        nn.ReLU(),
+        nn.Linear(16, 2),
+    )
 ```
 
-```pycon id="e2emodel2"
->>> model
-Sequential(
-  (0): Linear(in_features=4, out_features=16, bias=True)
-  (1): ReLU()
-  (2): Linear(in_features=16, out_features=2, bias=True)
-)
-```
+Using a builder function makes it possible to create fresh model instances for checking, tuning, and final training.
 
-The model receives four input features and produces two class logits.
+## Define the Loss and Metric
 
+Use cross-entropy loss for the two-class classification task.
 
-## Define the Loss Function and Optimizer
+DanFlow's training workflow expects a stateful metric object with `reset()`, `update()`, and `compute()` methods, so define a small metric class for this example.
 
-Configure the objective function and optimizer.
-
-```python id="e2opt1"
+```python id="8l4q8q"
+import torch
 import torch.optim as optim
 
+
+class BinaryAccuracy:
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.correct = 0
+        self.total = 0
+
+    def update(self, outputs, targets):
+        predictions = outputs.argmax(dim=1)
+        self.correct += (predictions == targets).sum().item()
+        self.total += targets.numel()
+
+    def compute(self):
+        return torch.tensor(
+            self.correct / self.total
+        )
+
+
 loss_fn = nn.CrossEntropyLoss()
+```
+
+## Check the Model Before Training
+
+Create a model, optimizer, and `ModelChecker` for the initial validation.
+
+```python id="x73l1l"
+from danflow.training.checker import ModelChecker
+
+model = build_model()
 
 optimizer = optim.Adam(
     model.parameters(),
     lr=0.001,
 )
-```
-
-```pycon id="e2opt2"
->>> loss_fn
-CrossEntropyLoss()
-
->>> optimizer.param_groups[0]["lr"]
-0.001
-```
-
-
-## Check the Model Before Training
-
-Before starting a full training process, use `ModelChecker` to verify that the model can execute a valid forward pass and learn from a small subset of the training data.
-
-```python id="e2check1"
-from danflow.training import ModelChecker
 
 checker = ModelChecker(
     model=model,
@@ -198,274 +213,628 @@ checker = ModelChecker(
 
 Run a forward check:
 
-```python id="e2check2"
+```python id="wts08n"
 forward_result = checker.forward_check(
     train_loader,
     expected_output_size=2,
 )
-
-print(forward_result)
 ```
 
-```pycon id="e2check3"
-ForwardCheckResult(
-    num_batches=3,
-    average_loss=0.6918,
-    input_shape=(2, 4),
-    target_shape=(2,),
-    output_shape=(2, 2)
-)
+Inspect the structural parts of the result:
+
+```pycon id="47f4cr"
+>>> forward_result.num_batches
+5
+
+>>> forward_result.input_shape
+(32, 4)
+
+>>> forward_result.target_shape
+(32,)
+
+>>> forward_result.output_shape
+(32, 2)
 ```
 
-The model can now be tested for its ability to learn.
+The model can also be tested on a small subset to verify that the loss decreases during backpropagation:
 
-```python id="e2check4"
+```python id="qj9e2b"
 backward_result = checker.backward_check(
     train_dataset=train_dataset,
-    num_samples=6,
-    epochs=10,
-)
-
-print(backward_result)
-```
-
-```pycon id="e2check5"
-BackwardCheckResult(
-    initial_loss=0.6918,
-    final_loss=0.2146,
-    final_metric=None,
-    epochs_trained=10,
-    target_loss=None,
-    target_metric=None,
-    success=None,
-    automatic_extension_used=False
+    num_samples=128,
+    epochs=5,
 )
 ```
 
-At this stage, the purpose is not to obtain the final model. The check is only intended to detect problems before committing to a full training run.
+Because `backward_check()` updates the model and optimizer in place, create a fresh model before starting hyperparameter search.
 
+```python id="y6d7m3"
+model = build_model()
+```
 
 ## Search for a Suitable Learning Rate
 
-Once the model passes the basic checks, try several learning rates.
+Start with a small set of candidate learning rates.
 
-```python id="e2lr1"
+```python id="4p0h2p"
 from danflow.training.tuner import LearningRateSelector
+
+metric = BinaryAccuracy()
 
 selector = LearningRateSelector(
     model=model,
     optimizer_cls=optim.Adam,
     loss_fn=loss_fn,
+    metric=metric,
     learning_rates=[
         0.01,
         0.001,
         0.0001,
     ],
-    epochs=5,
+    epochs=3,
 )
+```
 
+Run the search:
+
+```python id="qndt1t"
 lr_results = selector.search(
     train_loader,
 )
 ```
 
-```pycon id="e2lr2"
-Final Results
-+--------------+--------+--------+
-| Learning Rate| Metric | Loss   |
-+--------------+--------+--------+
-| 0.01         | ...    | 0.31   |
-| 0.001        | ...    | 0.18   |
-| 0.0001       | ...    | 0.49   |
-+--------------+--------+--------+
+The results contain one record for each learning rate:
 
-Best learning rate: 0.001 (Final loss: 0.1800)
+```pycon id="xwhby0"
+>>> len(lr_results)
+3
+
+>>> lr_results[0].keys()
+dict_keys(['learning_rate', 'loss', 'metric'])
 ```
 
-The learning rate with the lowest final loss can then be used as a candidate for the next search.
+Select the learning rate with the lowest final loss:
 
+```python id="j1q8fj"
+best_lr = min(
+    lr_results,
+    key=lambda result: result["loss"],
+)["learning_rate"]
+```
 
-## Search for Learning Rate and Weight Decay
+The selected value comes directly from the actual search results.
 
-Use `SmallGrid` to evaluate combinations of learning rate and weight decay.
+## Search Learning Rate and Weight Decay
 
-```python id="e2grid1"
+Use `SmallGrid` to compare a small number of learning-rate and weight-decay combinations.
+
+```python id="qcnx4f"
 from danflow.training.tuner import SmallGrid
 
 grid = SmallGrid(
     model=model,
     optimizer_cls=optim.Adam,
     loss_fn=loss_fn,
-    metric=accuracy,
+    metric=BinaryAccuracy(),
     learning_rates=[
-        0.01,
-        0.001,
+        best_lr,
+        0.0005,
     ],
     weight_decays=[
         0.0,
         1e-4,
-        1e-5,
     ],
-    epochs=5,
+    epochs=3,
 )
+```
 
+Run the grid search:
+
+```python id="w2r8cu"
 grid_results = grid.search(
     train_loader,
 )
 ```
 
-```pycon id="e2grid2"
-Final Results:
-+--------------+--------------+--------+--------+
-| Learning Rate| Weight Decay | Metric | Loss   |
-+--------------+--------------+--------+--------+
-| 0.01         | 0.0          | ...    | 0.31   |
-| 0.01         | 0.0001       | ...    | 0.29   |
-| 0.01         | 1e-05        | ...    | 0.30   |
-| 0.001        | 0.0          | ...    | 0.18   |
-| 0.001        | 0.0001       | ...    | 0.16   |
-| 0.001        | 1e-05        | ...    | 0.17   |
-+--------------+--------------+--------+--------+
+The result list contains one record for every parameter combination:
 
-Best configuration: Learning Rate=0.001, Weight Decay=0.0001 (Final loss: 0.1600)
+```pycon id="be2y4t"
+>>> len(grid_results)
+4
+
+>>> grid_results[0].keys()
+dict_keys(['learning_rate', 'weight_decay', 'loss', 'metric'])
 ```
 
-This search gives a candidate final configuration:
+Select the configuration with the lowest final loss:
 
-```text
-learning rate = 0.001
-weight decay  = 0.0001
-```
-
-
-## Create the Final Trainer
-
-Create a fresh optimizer using the selected hyperparameters.
-
-```python id="e2final1"
-optimizer = optim.Adam(
-    model.parameters(),
-    lr=0.001,
-    weight_decay=1e-4,
+```python id="z5c1xg"
+best_config = min(
+    grid_results,
+    key=lambda result: result["loss"],
 )
 ```
 
-```pycon id="e2final2"
->>> optimizer.param_groups[0]["lr"]
-0.001
+The selected configuration can be inspected directly:
 
->>> optimizer.param_groups[0]["weight_decay"]
-0.0001
+```pycon id="n4z9gq"
+>>> best_config.keys()
+dict_keys(['learning_rate', 'weight_decay', 'loss', 'metric'])
 ```
 
-Create the DanFlow trainer.
+## Create the Final Model
 
-```python id="e2final3"
+Create a fresh model for the final training stage.
+
+```python id="3q51sa"
+model = build_model()
+
+optimizer = optim.Adam(
+    model.parameters(),
+    lr=best_config["learning_rate"],
+    weight_decay=best_config["weight_decay"],
+)
+
+metric = BinaryAccuracy()
+```
+
+Create the DanFlow `Trainer`:
+
+```python id="9zixqp"
 from danflow.training import Trainer
 
 trainer = Trainer(
     model=model,
     optimizer=optimizer,
     loss_fn=loss_fn,
-    metric=accuracy,
+    metric=metric,
 )
 ```
 
+At this point, the final training configuration has been selected and a fresh model is ready for training.
 
 ## Train the Final Model
 
-The hyperparameters have now been selected, so the final model can be trained.
+Train the model using both the training and validation loaders.
 
-```python id="e2fit1"
+Save the best validation-loss checkpoint during training.
+
+```python id="p1r3yq"
 history = trainer.fit(
     train_loader=train_loader,
-    validation_loader=validation_loader,
+    valid_loader=valid_loader,
     epochs=20,
+    save_best=True,
+    checkpoint_path="best_model.pth",
 )
 ```
 
-```pycon id="e2fit2"
->>> history
-{
-    'train_loss': [...],
-    'valid_loss': [...],
-    'train_metric': [...],
-    'valid_metric': [...]
-}
+Inspect the returned history:
+
+```pycon id="3n7tt4"
+>>> list(history.keys())
+['train_loss', 'valid_loss', 'train_metric', 'valid_metric', 'metric_name', 'best_valid_loss', 'best_loss_epoch', 'best_valid_metric', 'best_metric_epoch']
+
+>>> len(history["train_loss"])
+20
+
+>>> len(history["valid_loss"])
+20
 ```
 
-The exact history values depend on the dataset and model initialization.
+The exact numerical values depend on the training run and should be read from the actual returned history.
 
-The important point is that the final training stage uses the selected configuration rather than repeating the hyperparameter search.
+## Load the Best Checkpoint
 
+The final evaluation should use the saved best checkpoint rather than assuming that the last training epoch is the best model.
 
-## Evaluate the Trained Model
+Load the checkpoint:
 
-After training is complete, evaluate the model on the test set.
+```python id="h2n9qk"
+checkpoint = torch.load(
+    "best_model.pth",
+    map_location="cpu",
+    weights_only=True,
+)
+```
 
-```python id="e2eval1"
-from danflow.evaluation import Evaluator
+The checkpoint contains the model and optimizer states together with training metadata:
+
+```pycon id="t2l4m0"
+>>> checkpoint.keys()
+dict_keys(['model_state_dict', 'optimizer_state_dict', 'epoch', 'best_valid_loss'])
+```
+
+Create a fresh model and restore its parameters:
+
+```python id="4c3wno"
+evaluation_model = build_model()
+
+evaluation_model.load_state_dict(
+    checkpoint["model_state_dict"],
+)
+```
+
+The evaluation model now represents the saved best checkpoint.
+
+## Evaluate the Final Model
+
+For final evaluation, use the test tensors that were not involved in training or hyperparameter selection.
+
+The `Evaluator` uses a callable metric, so define an accuracy function for the test stage:
+
+```python id="o4n86p"
+def accuracy(outputs, targets):
+    predictions = outputs.argmax(dim=1)
+    return (predictions == targets).float().mean()
+```
+
+Create the evaluator:
+
+```python id="50vkqw"
+from danflow.training import Evaluator
 
 evaluator = Evaluator(
-    model=model,
-    loss_fn=loss_fn,
+    model=evaluation_model,
+    loss_fn=nn.CrossEntropyLoss(),
     metric=accuracy,
 )
+```
 
-test_loss, test_metric = evaluator.test(
-    test_loader,
+Run the evaluation:
+
+```python id="w6x4cv"
+test_result = evaluator.test(
+    x_test,
+    y_test,
 )
-
-print("Test loss:", test_loss)
-print("Test metric:", test_metric)
 ```
 
-```pycon id="e2eval2"
-Test loss: 0.1937
-Test metric: 0.9000
+The returned object is a dictionary:
+
+```pycon id="r5k0zn"
+>>> list(test_result.keys())
+['Metric', 'Loss']
 ```
 
-The test set is used only at the end of the workflow to obtain a final estimate of model performance on unseen data.
+The numerical results depend on the trained checkpoint:
 
+```python id="bcs6f2"
+print(f"Test loss: {test_result['Loss']:.4f}")
+print(f"Test accuracy: {test_result['Metric']:.4f}")
+```
+
+The final test values should be taken from the actual evaluation run rather than hard-coded into the example.
 
 ## Visualize the Training History
 
-After training, inspect the training and validation curves.
+The same history returned by `Trainer.fit()` can be used with DanFlow's training visualization utilities.
 
-The history produced by `Trainer.fit()` can be passed directly to DanFlow's training-history visualization utility.
+Plot the loss history:
 
-```python id="e2vis1"
-from danflow.visualization.training import plot_training_history
+```python id="8f1t2r"
+from danflow.visualization.training import plot_loss_history
 
-plot_training_history(
-    history=history,
+plot_loss_history(
+    history,
     name="Binary Classifier",
+    show_best_loss=True,
 )
 ```
 
-```pycon id="e2vis2"
->>> plot_training_history(
-...     history=history,
-...     name="Binary Classifier",
-... )
+Plot the metric history:
+
+```python id="6js7hw"
+from danflow.visualization.training import plot_metric_history
+
+plot_metric_history(
+    history,
+    name="Binary Classifier",
+    show_best_metric=True,
+)
 ```
 
-This visualization helps determine whether training and validation performance are improving consistently and whether there may be signs of overfitting.
+The combined view can also be used:
 
+```python id="6q0y83"
+from danflow.visualization.training import plot_training_history
 
-## Final Result
-
-At the end of the workflow, the project has produced:
-
-```python id="e2result1"
-print(f"Test loss: {test_loss:.4f}")
-print(f"Test metric: {test_metric:.4f}")
+plot_training_history(
+    history,
+    name="Binary Classifier",
+    show_best_loss=True,
+    show_best_metric=True,
+)
 ```
 
-```pycon id="e2result2"
-Test loss: 0.1937
-Test metric: 0.9000
+These plots provide a visual record of the model's training and validation behavior.
+
+## Complete Workflow
+
+The main workflow can now be summarized in one script:
+
+```python id="be0qfu"
+import torch
+import torch.nn as nn
+import torch.optim as optim
+
+from torch.utils.data import DataLoader, TensorDataset
+
+from danflow.training import (
+    Evaluator,
+    ModelChecker,
+    Trainer,
+)
+from danflow.training.tuner import (
+    LearningRateSelector,
+    SmallGrid,
+)
+from danflow.visualization.training import (
+    plot_loss_history,
+    plot_metric_history,
+    plot_training_history,
+)
+
+
+# Data
+
+torch.manual_seed(42)
+
+x = torch.randn(600, 4)
+
+score = (
+    1.5 * x[:, 0]
+    + 0.8 * x[:, 1]
+    - 0.5 * x[:, 2]
+    + 0.2 * x[:, 3]
+)
+
+y = (score > 0).long()
+
+indices = torch.randperm(
+    len(x),
+    generator=torch.Generator().manual_seed(42),
+)
+
+train_indices = indices[:360]
+valid_indices = indices[360:480]
+test_indices = indices[480:]
+
+x_train, y_train = x[train_indices], y[train_indices]
+x_valid, y_valid = x[valid_indices], y[valid_indices]
+x_test, y_test = x[test_indices], y[test_indices]
+
+train_loader = DataLoader(
+    TensorDataset(x_train, y_train),
+    batch_size=32,
+    shuffle=True,
+)
+
+valid_loader = DataLoader(
+    TensorDataset(x_valid, y_valid),
+    batch_size=32,
+    shuffle=False,
+)
+
+
+# Model
+
+def build_model():
+    return nn.Sequential(
+        nn.Linear(4, 16),
+        nn.ReLU(),
+        nn.Linear(16, 2),
+    )
+
+
+loss_fn = nn.CrossEntropyLoss()
+
+
+# Metric for training
+
+class BinaryAccuracy:
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.correct = 0
+        self.total = 0
+
+    def update(self, outputs, targets):
+        predictions = outputs.argmax(dim=1)
+        self.correct += (predictions == targets).sum().item()
+        self.total += targets.numel()
+
+    def compute(self):
+        return torch.tensor(
+            self.correct / self.total
+        )
+
+
+# Model checking
+
+model = build_model()
+
+checker = ModelChecker(
+    model=model,
+    optimizer=optim.Adam(
+        model.parameters(),
+        lr=0.001,
+    ),
+    loss_fn=loss_fn,
+)
+
+checker.forward_check(
+    train_loader,
+    expected_output_size=2,
+)
+
+checker.backward_check(
+    train_dataset=TensorDataset(
+        x_train,
+        y_train,
+    ),
+    num_samples=128,
+    epochs=5,
+)
+
+
+# Hyperparameter search
+
+model = build_model()
+
+selector = LearningRateSelector(
+    model=model,
+    optimizer_cls=optim.Adam,
+    loss_fn=loss_fn,
+    metric=BinaryAccuracy(),
+    learning_rates=[0.01, 0.001, 0.0001],
+    epochs=3,
+)
+
+lr_results = selector.search(
+    train_loader,
+)
+
+best_lr = min(
+    lr_results,
+    key=lambda result: result["loss"],
+)["learning_rate"]
+
+grid = SmallGrid(
+    model=model,
+    optimizer_cls=optim.Adam,
+    loss_fn=loss_fn,
+    metric=BinaryAccuracy(),
+    learning_rates=[best_lr, 0.0005],
+    weight_decays=[0.0, 1e-4],
+    epochs=3,
+)
+
+grid_results = grid.search(
+    train_loader,
+)
+
+best_config = min(
+    grid_results,
+    key=lambda result: result["loss"],
+)
+
+
+# Final training
+
+model = build_model()
+
+trainer = Trainer(
+    model=model,
+    optimizer=optim.Adam(
+        model.parameters(),
+        lr=best_config["learning_rate"],
+        weight_decay=best_config["weight_decay"],
+    ),
+    loss_fn=loss_fn,
+    metric=BinaryAccuracy(),
+)
+
+history = trainer.fit(
+    train_loader=train_loader,
+    valid_loader=valid_loader,
+    epochs=20,
+    save_best=True,
+    checkpoint_path="best_model.pth",
+)
+
+
+
+# Load best checkpoint
+
+checkpoint = torch.load(
+    "best_model.pth",
+    map_location="cpu",
+    weights_only=True,
+)
+
+evaluation_model = build_model()
+
+evaluation_model.load_state_dict(
+    checkpoint["model_state_dict"],
+)
+
+
+# Final evaluation
+
+def accuracy(outputs, targets):
+    predictions = outputs.argmax(dim=1)
+    return (predictions == targets).float().mean()
+
+
+evaluator = Evaluator(
+    model=evaluation_model,
+    loss_fn=nn.CrossEntropyLoss(),
+    metric=accuracy,
+)
+
+test_result = evaluator.test(
+    x_test,
+    y_test,
+)
+
+print(f"Test loss: {test_result['Loss']:.4f}")
+print(f"Test accuracy: {test_result['Metric']:.4f}")
+
+
+# Visualization
+
+plot_loss_history(
+    history,
+    name="Binary Classifier",
+    show_best_loss=True,
+)
+
+plot_metric_history(
+    history,
+    name="Binary Classifier",
+    show_best_metric=True,
+)
+
+plot_training_history(
+    history,
+    name="Binary Classifier",
+    show_best_loss=True,
+    show_best_metric=True,
+)
 ```
 
+The completed project now connects the main DanFlow components into one reproducible workflow:
 
-This example intentionally focuses on how the components work together rather than documenting their individual APIs. Detailed parameter descriptions and error handling belong in the corresponding `docs/api/` files.
+```text
+Data Preparation
+    Dataset
+    Train / Validation / Test Split
+
+Model Setup
+    Model
+    Loss
+    Metric
+
+Validation & Tuning
+    ModelChecker
+    LearningRateSelector
+    SmallGrid
+
+Final Training
+    Trainer.fit()
+    Best Checkpoint
+
+Evaluation
+    Evaluator
+    Test Loss
+    Test Metric
+
+Visualization
+    Loss History
+    Metric History
+    Training History
+```
+
+This example focuses on how the components work together. Detailed parameter descriptions, return values, and error handling belong in the corresponding `docs/api/` pages.
