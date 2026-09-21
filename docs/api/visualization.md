@@ -1,318 +1,400 @@
-## plot_correlation_heatmap()
+# Visualization
 
-Plots a correlation heatmap for all numerical columns in a DataFrame.
+DanFlow provides visualization utilities for exploratory data analysis and training-history inspection.
 
-### Parameters
+The visualization API is organized into two modules:
 
-#### `df` : `pd.DataFrame`
+* `danflow.visualization.data` contains plots for tabular datasets.
+* `danflow.visualization.training` contains plots for model training history.
 
-Input DataFrame containing the data.
+## Data Visualization
 
-#### `save_path` : `str | Path | None`, default=`None`
+### plot_correlation_heatmap()
 
-Optional path where the generated figure will be saved.
 
-If `None`, the figure is displayed without being saved.
+Plots the correlation matrix of numerical columns in a pandas `DataFrame`.
 
-#### `figsize` : `tuple[int, int]`, default=`(10, 8)`
 
-Size of the matplotlib figure.
+#### Parameters
 
-### Returns
+##### `df` : `pd.DataFrame`
+Input DataFrame.
 
-`None`
-
-### Example
-
-```pycon
->>> import pandas as pd
->>> from danflow.visualization.data import plot_correlation_heatmap
-
->>> df = pd.read_csv("dataset.csv")
-
->>> plot_correlation_heatmap(
-...     df=df,
-...     save_path="plots/correlation_heatmap.png",
-... )
-
-# Displays the correlation heatmap and saves it to
-# "plots/correlation_heatmap.png".
-```
-
-## plot_histogram()
-
-Plots the histogram of a selected DataFrame column.
-
-### Parameters
-
-#### `df` : `pd.DataFrame`
-
-Input DataFrame containing the data to visualize.
-
-#### `column` : `str`
-
-Name of the column to plot.
-
-#### `bins` : `int`, default=`50`
-
-Number of histogram bins.
-
-#### `save_path` : `str | Path | None`, default=`None`
-
+##### `save_path` : `Optional[str | Path]`, default=`"None"`
 Optional path where the figure will be saved.
 
-- If a filename is provided (e.g., `"plots/histogram.png"`), the figure is saved using that filename.
-- If a directory is provided (e.g., `"plots/"`), the figure is saved in that directory using an automatically generated filename.
-- If `None`, the figure is displayed without being saved.
+- If a filename is provided (e.g., ``"plots/correlation_heatmap.png"``), the
+        figure is saved using that filename.
+- If a directory is provided (e.g., ``"plots/"`` or ``"plots"``), the
+        figure is saved in that directory using an automatically generated
+        filename.
+- If ``None``, the figure is not saved.
 
-#### `figsize` : `tuple[int, int]`, default=`(8, 5)`
-
+##### `figsize` : `tuple[int, int]`, default=`(10, 8)`
 Size of the matplotlib figure.
 
-### Returns
+
+#### Returns
 
 `None`
 
-### Example
 
-```pycon
->>> import pandas as pd
->>> from danflow.visualization.data import plot_histogram
+#### Example
 
->>> df = pd.read_csv("dataset.csv")
+```python
+from danflow.visualization.data import plot_correlation_heatmap
 
->>> plot_histogram(
-...     df=df,
-...     column="feature_1",
-...     bins=30,
-...     save_path="plots/",
-... )
-
-# Displays the histogram of "feature_1" and saves it
-# to "plots/feature_1_histogram.png".
+plot_correlation_heatmap(
+    df,
+    save_path=None,
+    figsize=(10, 8),
+)
 ```
 
 
-## plot_multi_histograms()
+### plot_histogram()
+---
 
-Plots histograms for multiple DataFrame columns in a single figure.
-
-### Parameters
-
-#### `df` : `pd.DataFrame`
-
-Input DataFrame containing the data.
-
-#### `columns` : `list[str]`
-
-List of column names to visualize.
-
-#### `name` : `str`
-
-Title of the figure.
-
-#### `bins` : `int`, default=`50`
-
-Number of histogram bins.
-
-#### `save_path` : `str | Path | None`, default=`None`
-
-Optional path where the generated figure will be saved.
-
-If `None`, the figure is displayed without being saved.
-
-#### `figsize` : `tuple[int, int] | None`, default=`None`
-
-Size of the matplotlib figure.
-
-If `None`, the figure size is determined automatically based on the number of subplots.
-
-### Returns
-
-`None`
-
-### Example
-
-```pycon
->>> import pandas as pd
->>> from danflow.visualization.data import plot_multi_histograms
-
->>> df = pd.read_csv("dataset.csv")
-
->>> plot_multi_histograms(
-...     df=df,
-...     columns=["feature_1", "feature_2", "feature_3"],
-...     name="Distributions",
-...     bins=30,
-...     save_path="plots/histograms.png",
-... )
-
-# Displays histograms for the selected columns and saves
-# the figure to "plots/histograms.png".
-```
+Plots the distribution of a selected DataFrame column.
 
 
-## plot_boxplot()
+#### Parameters
 
-Plots a boxplot for a selected DataFrame column.
+##### `df` : `pd.DataFrame`
+Input DataFrame.
 
-### Parameters
-
-#### `df` : `pd.DataFrame`
-
-Input DataFrame containing the data.
-
-#### `column` : `str`
-
+##### `column` : `str`
 Name of the column to visualize.
 
-#### `save_path` : `str | Path | None`, default=`None`
+##### `bins` : `int` ,default=`"50"`
+Number of histogram bins.
 
-Optional path where the generated figure will be saved.
+##### `save_path` : `Optional[str | Path]`, default=`"None"`
+Optional path where the figure will be saved.
 
-If `None`, the figure is displayed without being saved.
+- If a filename is provided (e.g., ``"plots/histogram.png"``), the
+        figure is saved using that filename.
+- If a directory is provided (e.g., ``"plots/"`` or ``"plots"``), the
+        figure is saved in that directory using an automatically generated
+        filename.
+- If ``None``, the figure is not saved.
 
-#### `figsize` : `tuple[int, int]`, default=`(8, 5)`
-
+##### `figsize` : `tuple[int, int]`, default=`(8, 5)`
 Size of the matplotlib figure.
 
-### Returns
+
+#### Returns
 
 `None`
 
-### Example
+#### Example
 
-```pycon
->>> import pandas as pd
->>> from danflow.visualization.data import plot_boxplot
+```python
+from danflow.visualization.data import plot_histogram
 
->>> df = pd.read_csv("dataset.csv")
-
->>> plot_boxplot(
-...     df=df,
-...     column="feature_1",
-...     save_path="plots/boxplot.png",
-... )
-
-# Displays the boxplot and saves it to
-# "plots/boxplot.png".
+plot_histogram(
+    df,
+    column,
+    bins=50,
+    save_path=None,
+    figsize=(8, 5),
+)
 ```
 
-## plot_multi_boxplots()
 
-Plots boxplots for multiple DataFrame columns in a single figure.
+### plot_multi_histograms()
+---
 
-### Parameters
+Plots histograms for multiple DataFrame columns in a multi-subplot figure.
 
-#### `df` : `pd.DataFrame`
 
-Input DataFrame containing the data.
+#### Parameters
 
-#### `columns` : `list[str]`
+##### `df` : `pd.DataFrame`
+Input DataFrame.
 
+##### `columns` : `list[str]`
+List of column names to visualize.
+ValueError: If `columns` is empty.
+
+##### `name` : `Optional[str]`, default=`None`
+Figure title.
+
+##### `bins` : `int`, default=`50`
+Number of histogram bins.
+
+##### `save_path` : `Optional[str | Path]`, default=`None`
+Optional path where the figure will be saved.
+
+- If a filename is provided (e.g., ``"plots/histograms.png"``),
+        the figure is saved using that filename.
+- If a directory is provided (e.g., ``"plots/"`` or ``"plots"``),
+        the figure is saved in that directory using the figure name
+        (e.g., ``"multi_histograms.png"``).
+- If ``None``, the figure is not saved.
+
+##### `figsize` : `tuple[int, int] | None`, default=`None`
+Size of the matplotlib figure. If None, the figure size is determined automatically.
+
+#### Returns
+
+`None`
+
+#### Example
+
+```python
+from danflow.visualization.data import plot_multi_histograms
+
+plot_multi_histograms(
+    df,
+    columns,
+    name=None,
+    bins=50,
+    save_path=None,
+    figsize=None,
+)
+```
+
+
+### plot_boxplot()
+---
+
+Plots a box plot for a selected DataFrame column.
+
+
+#### Parameters
+
+##### `df` : `pd.DataFrame`
+Input dataframe.
+
+##### `column` : `str`
+Name of the column to visualize.
+
+##### `save_path` : `Optional[str | Path]`, default=`None`
+Optional path where the figure will be saved.
+
+- If a filename is provided (e.g., ``"plots/boxplot.png"``), the
+        figure is saved using that filename.
+- If a directory is provided (e.g., ``"plots/"`` or ``"plots"``), the
+        figure is saved in that directory using an automatically generated
+        filename.
+- If ``None``, the figure is not saved.
+
+##### `figsize` : `tuple[int, int]`, default=`(8, 5)`
+Size of the matplotlib figure.
+
+
+#### Returns
+
+`None`
+
+#### Example
+
+```python
+from danflow.visualization.data import plot_boxplot
+
+plot_boxplot(
+    df,
+    column,
+    save_path=None,
+    figsize=(8, 5),
+)
+```
+
+
+### plot_multi_boxplots()
+---
+
+Plots box plots for multiple DataFrame columns.
+
+#### Parameters
+
+##### `df` : `pd.DataFrame`
+Input dataframe.
+
+##### `column` : `str`
 List of column names to visualize.
 
-#### `save_path` : `str | Path | None`, default=`None`
+##### `name`: `Optional[str]`, default=`None`
+Figure title.
 
-Optional path where the generated figure will be saved.
+##### `save_path` : `Optional[str | Path]`, default=`None`
+Optional path where the figure will be saved.
 
-If `None`, the figure is displayed without being saved.
+- If a filename is provided (e.g., ``"plots/multi_boxplots.png"``),
+        the figure is saved using that filename.
+- If a directory is provided (e.g., ``"plots/"`` or ``"plots"``),
+        the figure is saved in that directory using the figure name
+        (e.g., ``"multi_boxplots.png"``).
+- If ``None``, the figure is not saved.
 
-#### `figsize` : `tuple[int, int]`, default=`(12, 4)`
+##### `figsize` : `tuple[int, int]`, default=`(12, 4)`
+Base size of the matplotlib figure. The height is automatically scaled according to the number of subplot rows.
 
-Base size of the matplotlib figure. The figure height is automatically adjusted according to the number of subplot rows.
 
-### Returns
+#### Returns
 
 `None`
 
-### Example
+#### Example
+```python
+from danflow.visualization.data import plot_multi_boxplots
 
-```pycon
->>> import pandas as pd
->>> from danflow.visualization.data import plot_multi_boxplots
-
->>> df = pd.read_csv("dataset.csv")
-
->>> plot_multi_boxplots(
-...     df=df,
-...     columns=["feature_1", "feature_2", "feature_3"],
-...     save_path="plots/boxplots.png",
-... )
-
-# Displays boxplots for the selected columns and saves
-# the figure to "plots/boxplots.png".
+plot_multi_boxplots(
+    df,
+    columns,
+    name=None,
+    save_path=None,
+    figsize=(12, 4),
+)
 ```
 
-## plot_training_history()
 
-Plots training and validation loss over epochs, with optional training and validation metrics.
+## Training Visualization
 
-### Parameters
+### plot_training_history()
 
-#### `history` : `Dict[str, List[float]]`
+Plots training and validation loss and, when available, training and validation metrics in one figure.
 
-Dictionary containing the training history returned by `Trainer.fit()`.
+#### Parameters
 
-Expected keys include:
+##### `history` : `Dict[str, List[float]]`
+Dictionary returned by Trainer.fit().
 
-- `"train_loss"`
-- `"valid_loss"`
-- `"train_metric"` *(optional)*
-- `"valid_metric"` *(optional)*
-- `"metric_name"` *(optional)*
-- `"best_loss_epoch"` *(optional)*
-- `"best_metric_epoch"` *(optional)*
+Expected keys:
 
-#### `name` : `str`
+- "train_loss"
+- "valid_loss"
+- "train_metric" (optional)
+- "valid_metric" (optional)
+- "metric_name" (optional)
+- "best_loss_epoch" (optional)
+- "best_metric_epoch" (optional) 
 
-Name of the experiment or model. Used as the figure title.
+##### `name` : `str`
+Name of the experiment or model (used in the plot title).
 
-#### `save_path` : `str | Path | None`, default=`None`
+##### `save_path` : `Optional[str | Path]`, default=`None`
+Optional path where the figure will be saved. If provided, the plot is saved to this location before being displayed. If None, the figure is not saved.
 
-Optional path where the generated figure will be saved.
 
-If `None`, the figure is displayed without being saved.
+##### `show_best_loss` : `bool`, default=`False`
+Whether to mark the epoch with the best validation loss on the plot. Requires "best_loss_epoch" to be present in history.
 
-#### `show_best_loss` : `bool`, default=`False`
+##### `show_best_metric` : `bool`, default=`False`
+Whether to mark the epoch with the best validation metric on the plot. Requires "best_metric_epoch" to be present in history.
 
-Whether to highlight the best validation loss on the plot.
-
-#### `show_best_metric` : `bool`, default=`False`
-
-Whether to highlight the best validation metric on the plot.
-
-#### `figsize` : `tuple[int, int]`, default=`(10, 5)`
-
+##### `figsize` : `tuple[int, int]`, default=`(10, 5)`
 Size of the matplotlib figure.
 
-### Returns
+
+#### Returns
 
 `None`
 
-### Example
+#### Example
 
-```pycon
->>> from danflow.visualization.training import plot_training_history
+```python
+from danflow.visualization.training import plot_training_history
 
->>> history = {
-...     "train_loss": [0.82, 0.64, 0.49, 0.38],
-...     "valid_loss": [0.88, 0.70, 0.55, 0.46],
-...     "train_metric": [0.71, 0.80, 0.87, 0.92],
-...     "valid_metric": [0.69, 0.77, 0.84, 0.89],
-...     "metric_name": "Accuracy",
-...     "best_loss_epoch": 4,
-...     "best_metric_epoch": 4,
-... }
+plot_training_history(
+    history,
+    name,
+    save_path=None,
+    show_best_loss=False,
+    show_best_metric=False,
+    figsize=(10, 5),
+)
+```
 
->>> plot_training_history(
-...     history=history,
-...     name="Model",
-...     show_best_loss=True,
-...     show_best_metric=True,
-...     save_path="plots/training_history.png",
-... )
 
-# Displays the training history plot and saves it to
-# "plots/training_history.png".
+### plot_loss_history()
+---
+Plots training and validation loss over epochs.
+
+#### Parameters
+
+##### `history` : `Dict[str, List[float]]` 
+Dictionary returned by Trainer.fit().
+
+Expected keys:
+
+- "train_loss"
+- "valid_loss"
+- "best_loss_epoch" (optional)
+
+##### `name` : `str`
+Name of the experiment or model (used in title).
+
+##### `save_path` : `Optional[str | Path]`, default=`None`
+Optional path where the figure will be saved. If provided, the plot is saved to this location before being displayed. If None, the figure is not saved.
+
+##### `show_best_loss` : `bool`, default=`False`
+If True and "best_loss_epoch" is present in history, marks the best validation loss with a star.
+
+##### `figsize` : `tuple[int, int]`, default=`(10, 5)`
+Size of the matplotlib figure.
+
+#### Returns
+
+`None`
+
+#### Example
+
+```python
+from danflow.visualization.training import plot_loss_history
+
+plot_loss_history(
+    history,
+    name,
+    save_path=None,
+    show_best_loss=False,
+    figsize=(10, 5),
+)
+```
+
+
+### plot_metric_history()
+---
+Plots training and validation metric over epochs.
+
+#### Parameters
+
+##### `history` : `Dict[str, List[float]]`
+Dictionary returned by Trainer.fit().
+
+Expected keys:
+
+- "train_metric"
+- "valid_metric"
+- "metric_name" (optional, used for axis label and legend)
+- "best_metric_epoch" (optional)
+
+##### `name` : `str`
+Name of the experiment or model (used in title).
+
+##### `save_path` : `Optional[str | Path]`, default=`None`
+Optional path where the figure will be saved. If provided, the plot is saved to this location before being displayed. If None, the figure is not saved.
+
+##### `show_best_metric` : `bool`, default=`False`
+If True and "best_metric_epoch" is present in history, marks the best validation metric with a star.
+
+##### `figsize` : `tuple[int, int]`, default=`(10, 5)`
+Size of the matplotlib figure.
+
+#### Returns
+
+`None`
+
+#### Example
+```python
+from danflow.visualization.training import plot_metric_history
+
+plot_metric_history(
+    history,
+    name,
+    save_path=None,
+    show_best_metric=False,
+    figsize=(10, 5),
+)
 ```
