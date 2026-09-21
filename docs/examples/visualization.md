@@ -1,13 +1,23 @@
 # Visualization
 
-This example demonstrates how to use DanFlow's visualization utilities during exploratory data analysis and after model training.
+This example demonstrates a practical visualization workflow with DanFlow.
 
-The visualization API is split into two groups:
+The workflow is divided into two stages:
 
-* `danflow.visualization.data` for feature-level plots.
-* `danflow.visualization.training` for training-history plots.
+```text
+Data Visualization
+    Dataset
+    Feature Relationships
+    Feature Distributions
+    Feature Spread
 
-The examples below use one small deterministic dataset so that every plot is reproducible.
+Training Visualization
+    Loss History
+    Metric History
+    Combined Training History
+```
+
+The examples use one deterministic dataset and one training history so the outputs can be reproduced consistently.
 
 ## Prepare the Data
 
@@ -28,17 +38,16 @@ data = pd.DataFrame({
 ```pycon
 >>> data.shape
 (10, 5)
+
 >>> list(data.columns)
 ['feature_1', 'feature_2', 'feature_3', 'feature_4', 'target']
 ```
-
-The same `data` object is reused for the following plots.
 
 ## Data Visualization
 
 ### Correlation Heatmap
 
-`plot_correlation_heatmap()` visualizes the correlation matrix of the numerical columns in a `DataFrame`.
+Use a correlation heatmap to inspect relationships between numerical columns.
 
 ```python
 from danflow.visualization.data import plot_correlation_heatmap
@@ -55,11 +64,9 @@ plot_correlation_heatmap(
 
 ![Correlation heatmap](../assets/correlation_heatmap.png)
 
-The function computes correlations with `df.corr(numeric_only=True)`, so non-numeric columns are excluded from the matrix.
-
 ### Single-Feature Histogram
 
-Use `plot_histogram()` when the distribution of one feature needs to be inspected.
+Inspect the distribution of one feature with a histogram.
 
 ```python
 from danflow.visualization.data import plot_histogram
@@ -78,11 +85,9 @@ plot_histogram(
 
 ![Feature histogram](../assets/histogram.png)
 
-The plot title is generated from the selected column name.
-
 ### Multiple Histograms
 
-`plot_multi_histograms()` compares the distributions of several columns in one figure.
+Compare the distributions of several columns in one figure.
 
 ```python
 from danflow.visualization.data import plot_multi_histograms
@@ -118,11 +123,9 @@ plot_multi_histograms(
 
 ![Multiple histograms](../assets/multi_histograms.png)
 
-The function arranges plots in two columns and automatically removes any unused subplot.
-
 ### Single-Feature Box Plot
 
-Use `plot_boxplot()` to inspect the spread and potential outliers of one feature.
+Inspect the spread of one feature with a box plot.
 
 ```python
 from danflow.visualization.data import plot_boxplot
@@ -142,7 +145,7 @@ plot_boxplot(
 
 ### Multiple Box Plots
 
-`plot_multi_boxplots()` provides the same view for several columns at once.
+Compare the spread of several features in one figure.
 
 ```python
 from danflow.visualization.data import plot_multi_boxplots
@@ -174,39 +177,9 @@ plot_multi_boxplots(
 
 ![Multiple box plots](../assets/multi_boxplots.png)
 
-Both `plot_multi_histograms()` and `plot_multi_boxplots()` raise `ValueError` when `columns` is empty.
-
 ## Training Visualization
 
-### Plot Training and Validation Loss
-
-After training, `Trainer.fit()` returns a history dictionary containing training and validation losses.
-
-```python
-from danflow.visualization.training import plot_training_history
-
-history = {
-    "train_loss": [0.80, 0.61, 0.47, 0.37, 0.30, 0.25, 0.21, 0.18],
-    "valid_loss": [0.84, 0.66, 0.52, 0.43, 0.36, 0.32, 0.29, 0.27],
-    "best_loss_epoch": 8,
-}
-
-plot_training_history(
-    history,
-    name="Loss Only",
-    show_best_loss=True,
-)
-```
-
-```pycon
->>> plot_training_history(history, name="Loss Only", show_best_loss=True)
-```
-
-![Training history](../assets/training_history_loss_only.png)
-
-### Plot Training and Validation Metrics
-
-When the history also contains `train_metric`, `valid_metric`, and `metric_name`, DanFlow adds the metric curves on a second y-axis.
+Use the training-history functions after `Trainer.fit()` has produced a history dictionary.
 
 ```python
 history = {
@@ -218,6 +191,62 @@ history = {
     "best_loss_epoch": 10,
     "best_metric_epoch": 10,
 }
+```
+
+### Loss History
+
+Use `plot_loss_history()` when the main question is how training and validation loss changed over epochs.
+
+```python
+from danflow.visualization.training import plot_loss_history
+
+plot_loss_history(
+    history,
+    name="Demo Model",
+    show_best_loss=True,
+)
+```
+
+```pycon
+>>> plot_loss_history(
+...     history,
+...     name="Demo Model",
+...     show_best_loss=True,
+... )
+```
+
+![Loss history](../assets/loss_history.png)
+
+### Metric History
+
+Use `plot_metric_history()` when the main question is how the training and validation metric changed over epochs.
+
+```python
+from danflow.visualization.training import plot_metric_history
+
+plot_metric_history(
+    history,
+    name="Demo Model",
+    show_best_metric=True,
+)
+```
+
+```pycon
+>>> plot_metric_history(
+...     history,
+...     name="Demo Model",
+...     show_best_metric=True,
+... )
+```
+
+![Metric history](../assets/metric_history.png)
+
+### Combined Training History
+
+Use `plot_training_history()` when both loss and metric should be inspected in one figure.
+
+```python
+from danflow.visualization.training import plot_training_history
 
 plot_training_history(
     history,
@@ -236,15 +265,11 @@ plot_training_history(
 ... )
 ```
 
-![Training history with metric](../assets/training_history.png)
-
-`show_best_loss=True` highlights the best validation-loss epoch, while `show_best_metric=True` highlights the best validation-metric epoch.
+![Combined training history](../assets/training_history.png)
 
 ## Saving Plots
 
-The data-visualization functions accept either a file path or a directory-like path.
-
-For example:
+Data-visualization functions can save to a filename or a directory-like path.
 
 ```python
 plot_histogram(
@@ -262,13 +287,25 @@ plot_boxplot(
 )
 ```
 
-When the path is treated as a directory, the data-visualization functions generate their own filename.
+Training-history functions treat `save_path` as the output file path.
 
-`plot_training_history()` differs: it treats `save_path` as the output file path rather than applying the same directory-filename convention.
+```python
+plot_loss_history(
+    history,
+    name="Demo Model",
+    save_path="plots/loss_history.png",
+)
 
-## A Typical Workflow
+plot_metric_history(
+    history,
+    name="Demo Model",
+    save_path="plots/metric_history.png",
+)
+```
 
-A practical exploratory workflow is to inspect the same dataset from several perspectives:
+## Complete Visualization Workflow
+
+The same dataset and history can be inspected with the full set of DanFlow visualization utilities.
 
 ```python
 from danflow.visualization.data import (
@@ -277,51 +314,61 @@ from danflow.visualization.data import (
     plot_multi_boxplots,
 )
 
+from danflow.visualization.training import (
+    plot_loss_history,
+    plot_metric_history,
+    plot_training_history,
+)
+
+# Data visualization
 plot_correlation_heatmap(data)
 
 plot_multi_histograms(
     data,
-    columns=[
-        "feature_1",
-        "feature_2",
-        "feature_3",
-        "feature_4",
-        "target",
-    ],
+    columns=["feature_1", "feature_2", "feature_3", "feature_4", "target"],
     name="Feature Distributions",
 )
 
 plot_multi_boxplots(
     data,
-    columns=[
-        "feature_1",
-        "feature_2",
-        "feature_3",
-        "feature_4",
-    ],
+    columns=["feature_1", "feature_2", "feature_3", "feature_4"],
     name="Feature Spread",
+)
+
+# Training visualization
+plot_loss_history(
+    history,
+    name="Demo Model",
+    show_best_loss=True,
+)
+
+plot_metric_history(
+    history,
+    name="Demo Model",
+    show_best_metric=True,
+)
+
+plot_training_history(
+    history,
+    name="Demo Model",
+    show_best_loss=True,
+    show_best_metric=True,
 )
 ```
 
-```pycon
->>> plot_correlation_heatmap(data)
->>> plot_multi_histograms(
-...     data,
-...     columns=["feature_1", "feature_2", "feature_3", "feature_4", "target"],
-...     name="Feature Distributions",
-... )
->>> plot_multi_boxplots(
-...     data,
-...     columns=["feature_1", "feature_2", "feature_3", "feature_4"],
-...     name="Feature Spread",
-... )
+The workflow provides both views of the model-development process:
+
+```text
+Data Visualization
+    Dataset Structure
+    Feature Relationships
+    Feature Distributions
+    Feature Spread
+
+Training Visualization
+    Loss History
+    Metric History
+    Combined Training History
 ```
 
-These plots provide complementary information:
-
-* The correlation heatmap shows linear relationships between numerical variables.
-* Histograms show feature distributions.
-* Box plots show spread and potential outliers.
-* Training-history plots show how model performance changes across epochs.
-
-After model training, `plot_training_history()` can be used to inspect whether training and validation behavior are aligned and where the best recorded validation result occurred.
+The resulting figures can then be used when inspecting the dataset and reviewing model-training behavior.
