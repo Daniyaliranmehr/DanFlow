@@ -1,76 +1,112 @@
 # API Reference
 
-The DanFlow API is organized into a small set of focused namespaces covering data preparation, loss functions, training, evaluation, model checking, hyperparameter search, and visualization.
+The DanFlow API provides a small set of public utilities for data preparation, loss calculation, model training, test-time evaluation, checkpoint-aware training, and visualization.
 
-This page is the central index for the public API. It does not replace the detailed API pages. Use the links in each section to find parameters, return values, exceptions, and implementation-specific behavior for an individual API.
+This page is the central index of the public API exposed by the current DanFlow package. It is intentionally concise: detailed parameters, return values, notes, and error behavior belong in the individual API pages.
 
 ## Public API at a Glance
 
-| Area                  | Main APIs                                                   | Detailed documentation                    |
-| --------------------- | ----------------------------------------------------------- | ----------------------------------------- |
-| Data                  | `extract_zip`, `delimited_to_csv`, `load_csv`               | [Data API](api/data.md)                   |
-| Losses                | `adaptive_loss`, `log_cosh_loss`                            | [Losses API](api/losses.md)               |
-| Training              | `Trainer`, `AverageMeter`                                   | [Trainer API](api/trainer.md)             |
-| Evaluation            | `Evaluator`                                                 | [Evaluator API](api/evaluator.md)         |
-| Model Checking        | `ModelChecker`, `ForwardCheckResult`, `BackwardCheckResult` | [Checker API](api/checker.md)             |
-| Hyperparameter Search | `LearningRateSelector`, `SmallGrid`                         | [Tuner API](api/tuner.md)                 |
-| Visualization         | Data and training-history plotting functions                | [Visualization API](api/visualization.md) |
+| Area          | Public API                                                                                                                            | Documentation                             |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| Data          | `extract_zip`, `load_csv`, `delimited_to_csv`                                                                                         | [Data API](api/data.md)                   |
+| Losses        | `adaptive_loss`, `log_cosh_loss`                                                                                                      | [Losses API](api/losses.md)               |
+| Training      | `Trainer`, `AverageMeter`                                                                                                             | [Trainer API](api/trainer.md)             |
+| Evaluation    | `Evaluator`                                                                                                                           | [Evaluator API](api/evaluator.md)         |
+| Visualization | `plot_training_history`, `plot_correlation_heatmap`, `plot_histogram`, `plot_multi_histograms`, `plot_boxplot`, `plot_multi_boxplots` | [Visualization API](api/visualization.md) |
 
-The API is intentionally centered around standard PyTorch objects. DanFlow provides workflow utilities around those objects rather than introducing a replacement model, tensor, optimizer, or data-loading abstraction.
+These entries reflect the public exports of the current package.
 
-## Importing the Public API
+## Public Import Paths
 
-DanFlow exposes its public functionality through package namespaces.
-
-For user-facing code, prefer the public package or subpackage import paths documented for each API rather than importing implementation details from private or internal modules.
+The recommended user-facing import style is to import public APIs from their package namespace rather than depending on implementation modules.
 
 For example:
 
 ```python
-from danflow.training import Trainer
-from danflow.data import load_csv
-from danflow.visualization import plot_histogram
+from danflow import (
+    Trainer,
+    Evaluator,
+    adaptive_loss,
+    log_cosh_loss,
+    extract_zip,
+    load_csv,
+    delimited_to_csv,
+    plot_training_history,
+    plot_correlation_heatmap,
+    plot_histogram,
+    plot_multi_histograms,
+    plot_boxplot,
+    plot_multi_boxplots,
+)
 ```
 
-The detailed API pages show the appropriate import for each component.
+`AverageMeter` is publicly exposed through `danflow.training`:
 
-The repository currently contains several internal modules that implement these APIs. Those internal module paths are useful when reading the source code, but application code should normally depend on the documented public namespace.
+```python
+from danflow.training import AverageMeter
+```
 
-## API Namespaces
+The package root currently re-exports `Trainer` and `Evaluator`, the loss functions, the data utilities, and the visualization functions listed above.
 
-### `danflow.data`
+## danflow.data
 
-The data namespace provides file and tabular-data preparation utilities.
+The data namespace provides small utilities for file-based and tabular data preparation.
 
 ```text
 danflow.data
     extract_zip()
-    delimited_to_csv()
     load_csv()
+    delimited_to_csv()
 ```
 
-#### `extract_zip`
+### `extract_zip()`
 
-Extracts a ZIP archive to a target directory.
+Extracts a ZIP archive into a specified directory.
 
-See the [Data API](api/data.md) for parameters, path behavior, and errors.
+```python
+from danflow import extract_zip
 
-#### `delimited_to_csv`
+extract_zip(
+    zip_path="dataset.zip",
+    output_path="data",
+)
+```
 
-Converts delimited text data into CSV format.
+See the [Data API](api/data.md) for the complete parameter and behavior reference.
 
-The API supports common delimiters such as spaces, pipes, and tabs. The detailed documentation also describes handling of empty lines, encoding, and output paths.
+### `load_csv()`
+
+Loads a CSV file into a pandas `DataFrame`.
+
+```python
+from danflow import load_csv
+
+df = load_csv("dataset.csv")
+```
 
 See the [Data API](api/data.md).
 
-#### `load_csv`
+### `delimited_to_csv()`
 
-Loads CSV data into a pandas `DataFrame`.
+Converts a delimited text file into a CSV file.
+
+```python
+from danflow import delimited_to_csv
+
+delimited_to_csv(
+    input_path="dataset.txt",
+    output_path="dataset.csv",
+    delimiter=" ",
+    encoding="utf-8",
+)
+```
+
+The current API supports configurable delimiters and encoding.
 
 See the [Data API](api/data.md).
 
 
-### `danflow.losses`
+## danflow.losses
 
 The losses namespace contains reusable tensor-based loss functions.
 
@@ -80,59 +116,55 @@ danflow.losses
     log_cosh_loss()
 ```
 
-#### `adaptive_loss`
+### `adaptive_loss()`
 
-Computes the DanFlow adaptive loss function for model outputs and targets.
+Computes DanFlow's adaptive loss for model outputs and targets.
+
+```python
+from danflow import adaptive_loss
+
+loss = adaptive_loss(
+    outputs,
+    targets,
+)
+```
 
 See the [Losses API](api/losses.md) for the exact signature and parameter behavior.
 
-#### `log_cosh_loss`
+### `log_cosh_loss()`
 
 Computes the log-cosh loss for model outputs and targets.
 
+```python
+from danflow import log_cosh_loss
+
+loss = log_cosh_loss(
+    outputs,
+    targets,
+)
+```
+
 See the [Losses API](api/losses.md).
 
-The loss functions can be used wherever a standard PyTorch loss function can be supplied.
+Both functions return values intended to participate in standard PyTorch training workflows.
 
 
-### `danflow.training`
+## danflow.training
 
-The training namespace contains DanFlow's primary training and evaluation classes.
+The training namespace currently exposes:
 
 ```text
 danflow.training
+    AverageMeter
     Trainer
     Evaluator
-    AverageMeter
-    ModelChecker
-    LearningRateSelector
-    SmallGrid
 ```
 
-These components do not have identical responsibilities.
-
-`Trainer` manages training execution.
-
-`Evaluator` performs test-time evaluation.
-
-`ModelChecker` validates the model's forward and backward behavior.
-
-`LearningRateSelector` and `SmallGrid` perform lightweight hyperparameter searches.
-
-`AverageMeter` is a training utility used for tracking averaged values and is exposed through the training namespace.
-
-See the detailed pages:
-
-* [Trainer API](api/trainer.md)
-* [Evaluator API](api/evaluator.md)
-* [Checker API](api/checker.md)
-* [Tuner API](api/tuner.md)
+The top-level package additionally re-exports `Trainer` and `Evaluator`.
 
 ## Trainer
 
-`Trainer` is the main multi-epoch training abstraction.
-
-Its public interface includes:
+`Trainer` is the main training abstraction in DanFlow.
 
 ```text
 Trainer
@@ -142,41 +174,82 @@ Trainer
     fit()
 ```
 
-Use `Trainer` when the model, optimizer, loss function, and optional metric are already defined and a standard training loop is required.
+It receives standard PyTorch training components and manages the training workflow around them.
 
-The detailed API page documents:
+```python
+from danflow import Trainer
 
-* constructor parameters,
-* training and validation behavior,
-* training history,
-* metric handling,
-* checkpoint saving,
-* method parameters and return values,
-* error behavior.
+trainer = Trainer(
+    model=model,
+    optimizer=optimizer,
+    loss_fn=loss_fn,
+    metric=metric,
+)
+```
+
+### `train_epoch()`
+
+Runs one complete training epoch and updates model parameters batch by batch.
+
+```python
+loss, metric_value = trainer.train_epoch(
+    train_loader,
+)
+```
+
+### `validate_epoch()`
+
+Runs one validation epoch without updating model parameters.
+
+The public parameter name is `valid_loader`.
+
+```python
+loss, metric_value = trainer.validate_epoch(
+    valid_loader,
+)
+```
+
+### `fit()`
+
+Runs a multi-epoch training workflow with validation and optional best-checkpoint saving.
+
+```python
+history = trainer.fit(
+    train_loader=train_loader,
+    valid_loader=valid_loader,
+    epochs=100,
+    save_best=True,
+    checkpoint_path="best_model.pth",
+)
+```
+
+The current implementation uses `valid_loader`, not `validation_loader`. It also returns the training and validation histories together with best-validation metadata.
+
+See the [Trainer API](api/trainer.md) for the complete reference.
+
+## AverageMeter
+
+`AverageMeter` is a small utility for storing a current value and maintaining a running average.
+
+```python
+from danflow.training import AverageMeter
+
+meter = AverageMeter()
+
+meter.update(0.5)
+meter.update(0.3)
+
+print(meter.avg)
+```
+
+It is publicly exported by `danflow.training`.
 
 See the [Trainer API](api/trainer.md).
-
-### Training history
-
-`Trainer.fit()` produces the training history consumed by DanFlow's training-visualization utilities.
-
-The history can contain training and validation loss values and, when a metric is configured, training and validation metric values.
-
-See:
-
-* [Trainer API](api/trainer.md)
-* [Visualization API](api/visualization.md)
-
-### Checkpoints
-
-`Trainer.fit()` can optionally save the best checkpoint during training.
-
-Checkpoint format and restoration behavior are documented separately in the [Checkpoints Guide](guides/checkpoints.md).
 
 
 ## Evaluator
 
-`Evaluator` provides test-time evaluation for a trained model.
+`Evaluator` provides test-time evaluation for a trained PyTorch model.
 
 ```text
 Evaluator
@@ -184,7 +257,21 @@ Evaluator
     test()
 ```
 
-The current `Evaluator.test()` interface accepts test input and target tensors directly:
+A typical setup is:
+
+```python
+from danflow import Evaluator
+
+evaluator = Evaluator(
+    model=model,
+    loss_fn=loss_fn,
+    metric=metric,
+)
+```
+
+### `test()`
+
+Evaluates the model on test tensors without gradient computation.
 
 ```python
 result = evaluator.test(
@@ -193,299 +280,208 @@ result = evaluator.test(
 )
 ```
 
-The returned value is a dictionary containing the configured evaluation metric and loss.
-
-The exact result structure, constructor parameters, and metric contract are documented in the [Evaluator API](api/evaluator.md).
-
-For conceptual guidance about separating training, validation, and test data, see the [Evaluation Guide](guides/evaluation.md).
-
-
-## AverageMeter
-
-`AverageMeter` is exposed through the training namespace and is used by the training implementation for tracking averaged values.
-
-It is currently grouped with the training APIs rather than treated as a separate subsystem.
-
-```python
-from danflow.training import AverageMeter
-```
-
-See the [Trainer API](api/trainer.md) for its current API documentation.
-
-
-## ModelChecker
-
-`ModelChecker` is the pre-training validation utility for checking whether a model and its training components are compatible.
+The returned dictionary can contain:
 
 ```text
-ModelChecker
-    __init__()
-    forward_check()
-    backward_check()
-    continue_backward()
+"Metric"
+"Loss"
 ```
 
-### `forward_check()`
+depending on which optional evaluation components were supplied.
 
-Checks the model's forward path using a `DataLoader`.
+The current implementation restores the model's original training/evaluation mode after the test operation.
 
-The check validates compatibility between:
-
-```text
-inputs
-    |
-    v
-model
-    |
-    v
-outputs
-    |
-    +---- targets
-    |
-    v
-loss function
-```
-
-The returned `ForwardCheckResult` contains information about processed batches, the average loss, and the observed input, target, and output shapes.
-
-### `backward_check()`
-
-Runs a small-subset training experiment to determine whether the model can learn from a limited training sample.
-
-The returned `BackwardCheckResult` records information such as:
-
-```text
-initial loss
-final loss
-final metric
-epochs trained
-target loss
-target metric
-success
-automatic extension state
-```
-
-### `continue_backward()`
-
-Continues an existing backward check using the current checker state and training subset.
-
-This is different from starting a new backward check.
-
-Detailed signatures, parameter requirements, state behavior, and result definitions belong in the [Checker API](api/checker.md).
-
-
-## Hyperparameter Search
-
-DanFlow provides two lightweight search utilities in `danflow.training.tuner`.
-
-```text
-danflow.training.tuner
-    LearningRateSelector
-    SmallGrid
-```
-
-### `LearningRateSelector`
-
-`LearningRateSelector` compares candidate learning rates using short independent training experiments.
-
-Its search space is the list of candidate learning rates.
-
-```python
-from danflow.training import LearningRateSelector
-
-selector = LearningRateSelector(
-    model=model,
-    optimizer_cls=optimizer_cls,
-    loss_fn=loss_fn,
-    learning_rates=[0.01, 0.001, 0.0001],
-    epochs=5,
-)
-```
-
-### `SmallGrid`
-
-`SmallGrid` searches combinations of learning rates and weight decays.
-
-```python
-from danflow.training import SmallGrid
-
-grid = SmallGrid(
-    model=model,
-    optimizer_cls=optimizer_cls,
-    loss_fn=loss_fn,
-    learning_rates=[0.01, 0.001],
-    weight_decays=[0.0, 1e-4],
-    epochs=5,
-)
-```
-
-Both utilities use the training infrastructure rather than implementing a separate optimization engine.
-
-Their exact constructors, search behavior, metric requirements, and result handling are documented in the [Tuner API](api/tuner.md).
-
-## Metric Requirements
-
-Metric handling differs between training-oriented components and evaluation.
-
-For:
-
-```text
-Trainer
-ModelChecker
-LearningRateSelector
-SmallGrid
-```
-
-the metric is stateful and follows the interface:
-
-```python
-metric.reset()
-metric.update(outputs, targets)
-metric.compute()
-```
-
-For `Evaluator`, the metric is a callable that receives model outputs and targets.
-
-```python
-metric(outputs, targets)
-```
-
-This distinction is important when moving a metric from the training workflow into evaluation.
-
-For the complete metric contract and examples, see the [Metrics Guide](guides/metrics.md).
+See the [Evaluator API](api/evaluator.md).
 
 
 ## danflow.visualization
 
-The visualization namespace contains two groups of plotting functions.
+The current public visualization API contains data-visualization utilities and the combined training-history plot.
 
 ```text
 danflow.visualization
-    Data visualization
-        plot_correlation_heatmap()
-        plot_histogram()
-        plot_multi_histograms()
-        plot_boxplot()
-        plot_multi_boxplots()
-
-    Training visualization
-        plot_training_history()
-        plot_loss_history()
-        plot_metric_history()
+    plot_correlation_heatmap()
+    plot_histogram()
+    plot_multi_histograms()
+    plot_boxplot()
+    plot_multi_boxplots()
+    plot_training_history()
 ```
 
-### Data visualization
+The current package root re-exports all of these functions.
 
-These functions operate on pandas `DataFrame` objects.
+## Data Visualization
 
-| Function                     | Purpose                                                |
-| ---------------------------- | ------------------------------------------------------ |
-| `plot_correlation_heatmap()` | Visualize numerical-feature correlations               |
-| `plot_histogram()`           | Visualize one column's distribution                    |
-| `plot_multi_histograms()`    | Visualize multiple column distributions                |
-| `plot_boxplot()`             | Visualize spread and potential outliers for one column |
-| `plot_multi_boxplots()`      | Visualize spread across multiple columns               |
+### `plot_correlation_heatmap()`
+
+Plots the correlation matrix of numerical DataFrame columns.
+
+```python
+from danflow import plot_correlation_heatmap
+
+plot_correlation_heatmap(
+    df,
+)
+```
+
+### `plot_histogram()`
+
+Plots the distribution of one DataFrame column.
+
+```python
+from danflow import plot_histogram
+
+plot_histogram(
+    df,
+    column="feature_1",
+)
+```
+
+### `plot_multi_histograms()`
+
+Plots histograms for multiple DataFrame columns.
+
+```python
+from danflow import plot_multi_histograms
+
+plot_multi_histograms(
+    df,
+    columns=["feature_1", "feature_2"],
+)
+```
+
+The current implementation requires at least one column in `columns`.
+
+### `plot_boxplot()`
+
+Plots a box plot for one DataFrame column.
+
+```python
+from danflow import plot_boxplot
+
+plot_boxplot(
+    df,
+    column="feature_1",
+)
+```
+
+### `plot_multi_boxplots()`
+
+Plots box plots for multiple DataFrame columns.
+
+```python
+from danflow import plot_multi_boxplots
+
+plot_multi_boxplots(
+    df,
+    columns=["feature_1", "feature_2"],
+)
+```
+
+See the [Visualization API](api/visualization.md) for detailed parameters and saving behavior.
+
+## Training Visualization
+
+### `plot_training_history()`
+
+Plots training and validation loss and, when a metric is available, training and validation metric values.
+
+```python
+from danflow import plot_training_history
+
+plot_training_history(
+    history,
+    name="Experiment",
+)
+```
+
+The function accepts the history produced by `Trainer.fit()` and supports optional best-loss and best-metric markers.
 
 See the [Visualization API](api/visualization.md).
 
-### Training visualization
-
-These functions consume the history produced by `Trainer.fit()`.
-
-| Function                  | Purpose                             |
-| ------------------------- | ----------------------------------- |
-| `plot_loss_history()`     | Plot training and validation loss   |
-| `plot_metric_history()`   | Plot training and validation metric |
-| `plot_training_history()` | Combine loss and metric histories   |
-
-The visualization API also documents the `save_path` behavior and optional best-result markers.
-
-See the [Visualization API](api/visualization.md).
-
+---
 
 ## API by Task
 
-Use this section when you know what you want to accomplish rather than which class or function you need.
+| Task                          | API                           |
+| ----------------------------- | ----------------------------- |
+| Extract a ZIP dataset         | `extract_zip()`               |
+| Convert delimited text to CSV | `delimited_to_csv()`          |
+| Load CSV data                 | `load_csv()`                  |
+| Use an adaptive loss          | `adaptive_loss()`             |
+| Use log-cosh loss             | `log_cosh_loss()`             |
+| Train one epoch               | `Trainer.train_epoch()`       |
+| Validate one epoch            | `Trainer.validate_epoch()`    |
+| Run multi-epoch training      | `Trainer.fit()`               |
+| Save the best checkpoint      | `Trainer.fit(save_best=True)` |
+| Evaluate test data            | `Evaluator.test()`            |
+| Plot feature correlations     | `plot_correlation_heatmap()`  |
+| Plot one feature distribution | `plot_histogram()`            |
+| Plot multiple distributions   | `plot_multi_histograms()`     |
+| Plot one feature's spread     | `plot_boxplot()`              |
+| Plot multiple feature spreads | `plot_multi_boxplots()`       |
+| Plot training history         | `plot_training_history()`     |
 
-| Task                                             | API                                           |
-| ------------------------------------------------ | --------------------------------------------- |
-| Extract a ZIP dataset                            | `extract_zip()`                               |
-| Convert a delimited text file to CSV             | `delimited_to_csv()`                          |
-| Load CSV data                                    | `load_csv()`                                  |
-| Use a DanFlow loss                               | `adaptive_loss()`, `log_cosh_loss()`          |
-| Train a PyTorch model                            | `Trainer`                                     |
-| Train a single epoch manually                    | `Trainer.train_epoch()`                       |
-| Validate a single epoch                          | `Trainer.validate_epoch()`                    |
-| Run a complete training process                  | `Trainer.fit()`                               |
-| Save the best training checkpoint                | `Trainer.fit(save_best=True)`                 |
-| Check a model's forward path                     | `ModelChecker.forward_check()`                |
-| Check whether a model can overfit a small subset | `ModelChecker.backward_check()`               |
-| Continue a backward check                        | `ModelChecker.continue_backward()`            |
-| Compare learning rates                           | `LearningRateSelector`                        |
-| Search learning rate and weight decay            | `SmallGrid`                                   |
-| Evaluate a trained model on test data            | `Evaluator.test()`                            |
-| Plot feature distributions                       | `plot_histogram()`, `plot_multi_histograms()` |
-| Plot feature relationships                       | `plot_correlation_heatmap()`                  |
-| Inspect outliers and spread                      | `plot_boxplot()`, `plot_multi_boxplots()`     |
-| Plot training loss                               | `plot_loss_history()`                         |
-| Plot training metric                             | `plot_metric_history()`                       |
-| Plot loss and metric together                    | `plot_training_history()`                     |
+## API Reference vs Guides vs Examples
 
-## API Documentation vs Guides vs Examples
-
-DanFlow documentation separates API information from conceptual and practical documentation.
+DanFlow documentation separates API information from workflow guidance.
 
 ### API Reference
 
-This page answers:
+Answers:
 
-> **Which public API should I use, and where is it documented?**
+> What public APIs exist, how are they imported, and where is their exact reference?
 
-The pages under `docs/api/` answer:
-
-> **What exactly does this API accept, return, and raise?**
+The individual API pages under `docs/api/` contain signatures, parameters, return values, notes, and API-specific behavior.
 
 ### Guides
 
-Guides answer:
+Answers:
 
-> **How should I use this functionality in a real workflow, and what should I watch out for?**
+> How should this functionality be used as part of a real workflow?
 
-See the [Guides](guides/training.md) for workflow-level explanations.
+See the [Guides](guides/training.md).
 
 ### Examples
 
-Examples answer:
+Answers:
 
-> **What does a complete DanFlow workflow look like?**
+> What does a complete practical workflow look like?
 
-See the [Examples](examples/end_to_end.md) for complete runnable-style workflows.
+See the [Examples](examples/end_to_end.md).
 
-Keeping these responsibilities separate avoids duplicating detailed parameter documentation throughout the rest of the documentation.
+This separation keeps API descriptions from being duplicated throughout the documentation.
 
-## Public API vs Internal Implementation
+## Public API vs Internal Modules
 
-The public API should be treated as the interface exposed by the documented DanFlow namespaces.
-
-The implementation currently contains internal module paths such as:
+The current source tree contains implementation modules such as:
 
 ```text
 danflow.training.trainer
-danflow.training.checker
-danflow.training.tuner
 danflow.data.io
-danflow.losses.loss
 danflow.visualization.data
 danflow.visualization.training
 ```
 
-These modules contain the implementation of the public API.
+These implementation paths explain where functionality is implemented internally.
 
-Users should generally avoid coupling application code to internal module organization when an equivalent public package import is available.
+User-facing code should prefer the documented public package imports where available.
 
-This distinction also allows DanFlow to reorganize implementation modules without unnecessarily changing user-facing code.
+For example:
 
-## API Index
+```python
+from danflow import Trainer
+```
+
+is preferable to coupling application code to:
+
+```python
+from danflow.training.trainer import Trainer
+```
+
+unless direct access to the implementation module is specifically required.
+
+## Detailed API Pages
 
 ### Data
 
@@ -503,24 +499,16 @@ This distinction also allows DanFlow to reorganize implementation modules withou
 
 [Evaluator API](api/evaluator.md)
 
-### Model Checking
-
-[Checker API](api/checker.md)
-
-### Hyperparameter Search
-
-[Tuner API](api/tuner.md)
-
 ### Visualization
 
 [Visualization API](api/visualization.md)
 
 ## Related Documentation
 
-For installation and the first working example, start with the [Quick Start](getting_started/quickstart.md).
+For installation and the first working example, see the [Quick Start](getting_started/quickstart.md).
 
-For the overall design and dependency relationships between components, see [Architecture](architecture.md).
+For the overall package design, see [Architecture](architecture.md).
 
 For workflow-oriented explanations, see the [Guides](guides/training.md).
 
-For complete practical workflows, see the [Examples](examples/end_to_end.md).
+For complete workflows, see the [Examples](examples/end_to_end.md).
