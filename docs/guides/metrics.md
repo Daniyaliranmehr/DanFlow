@@ -28,16 +28,16 @@ Training-related DanFlow components expect a metric object that maintains its st
 
 The required lifecycle is:
 
-```text id="5t3m9p"
-reset()
-    Clear accumulated state
 
-update(outputs, targets)
-    Process one batch
+- reset()
+    - Clear accumulated state
 
-compute()
-    Return the final metric value
-```
+- update(outputs, targets)
+    - Process one batch
+
+- compute()
+    - Return the final metric value
+
 
 A metric used with `Trainer`, `ModelChecker`, `LearningRateSelector`, or `SmallGrid` must provide these operations.
 
@@ -49,7 +49,7 @@ A metric should be ready to process a new evaluation period immediately after `r
 
 For example, an accuracy metric may reset its counters:
 
-```python id="s4r1y6"
+```python
 def reset(self):
     self.correct = 0
     self.total = 0
@@ -63,7 +63,7 @@ The method should update the internal state without returning the final metric v
 
 For example:
 
-```python id="3x5m2a"
+```python
 def update(self, outputs, targets):
     predictions = outputs.argmax(dim=1)
 
@@ -79,7 +79,7 @@ For metrics used by DanFlow's training components, the returned value must suppo
 
 A safe implementation is therefore:
 
-```python id="7c1v9e"
+```python
 def compute(self):
     return torch.tensor(self.correct / self.total)
 ```
@@ -90,7 +90,7 @@ The returned tensor should contain a single scalar value.
 
 A complete minimal accuracy metric can be implemented as follows:
 
-```python id="n5j7q2"
+```python
 import torch
 
 
@@ -122,7 +122,7 @@ class SimpleAccuracy:
 
 The metric can be tested independently before passing it to DanFlow:
 
-```python id="9b6x4k"
+```python
 metric = SimpleAccuracy()
 
 outputs = torch.tensor([
@@ -138,7 +138,7 @@ metric.update(outputs, targets)
 result = metric.compute()
 ```
 
-```pycon id="m8z1c4"
+```pycon
 >>> result
 tensor(0.7500)
 >>> result.item()
@@ -149,7 +149,7 @@ The metric has accumulated three correct predictions out of four samples.
 
 Before starting a new evaluation period, reset its state:
 
-```pycon id="w2h7k5"
+```pycon
 >>> metric.reset()
 >>> metric.total
 0
@@ -167,7 +167,7 @@ TorchMetrics provides ready-made metric implementations with this style of state
 
 For example:
 
-```python id="p7d4m2"
+```python
 from torchmetrics.classification import MulticlassAccuracy
 
 metric = MulticlassAccuracy(
@@ -181,13 +181,13 @@ For installation instructions, see the [Installation Guide](../getting_started/i
 
 Using TorchMetrics can be preferable to implementing common metrics manually because the metric implementation and state management are already provided.
 
-## Metric Naming in `Trainer`
+## Metric Naming in Trainer
 
 When a stateful metric is supplied to `Trainer`, DanFlow derives the metric name from the metric object's class name.
 
 For example:
 
-```python id="e8c2v5"
+```python
 metric = SimpleAccuracy()
 ```
 
@@ -199,7 +199,7 @@ SimpleAccuracy
 
 This name is stored in the training history under:
 
-```python id="r5h6n3"
+```python
 history["metric_name"]
 ```
 
@@ -216,7 +216,7 @@ The same stateful metric contract is used by several DanFlow components.
 
 `Trainer` uses the metric while processing training and validation batches and records the resulting values in:
 
-```text id="7e2r6u"
+```text
 train_metric
 valid_metric
 metric_name
@@ -234,7 +234,7 @@ A metric can also be used as part of a backward check target.
 
 For example:
 
-```python id="f4k9r1"
+```python
 checker.backward_check(
     train_dataset=train_dataset,
     metric=metric,
@@ -253,13 +253,13 @@ The tuning utilities also use the stateful metric contract.
 
 This means the same `SimpleAccuracy` or TorchMetrics object can be used with:
 
-```python id="r9n5w2"
+```python
 LearningRateSelector(...)
 ```
 
 or:
 
-```python id="d6p3k8"
+```python
 SmallGrid(...)
 ```
 
@@ -273,14 +273,14 @@ The complete tuning workflow belongs in the Hyperparameter Tuning example rather
 
 Instead of a stateful metric object, it accepts a callable that receives the outputs and targets and returns a scalar result:
 
-```python id="u3v8q1"
+```python
 def metric(outputs, targets):
     ...
 ```
 
 For example:
 
-```python id="k5s2m7"
+```python
 def accuracy(outputs, targets):
     predictions = outputs.argmax(dim=1)
     return (predictions == targets).float().mean()
@@ -317,19 +317,18 @@ DanFlow's training history stores metric values, but the interpretation of wheth
 
 For example:
 
-```text id="r6k2m9"
-Accuracy
-    Higher is better
+- Accuracy
+    - Higher is better
 
-F1
-    Higher is better
+- F1
+    - Higher is better
 
-MAE
-    Lower is better
+- MAE
+    - Lower is better
 
-RMSE
-    Lower is better
-```
+- RMSE
+    - Lower is better
+
 
 This distinction is particularly important when metric values are used to identify a best result.
 
@@ -345,17 +344,15 @@ That state must represent only the current evaluation period.
 
 The metric lifecycle should therefore be conceptually separated:
 
-```text id="1c9v7s"
-Training period
-    Reset
-    Update for training batches
-    Compute
+- Training period
+    - Reset
+    - Update for training batches
+    - Compute
 
-Validation period
-    Reset
-    Update for validation batches
-    Compute
-```
+- Validation period
+    - Reset
+    - Update for validation batches
+    - Compute
 
 Do not manually accumulate values from unrelated evaluation periods in the same metric state.
 
@@ -369,14 +366,14 @@ This is not the same as the callable metric accepted by `Evaluator`.
 
 This will not satisfy the stateful metric contract:
 
-```python id="v4r8n2"
+```python
 def accuracy(outputs, targets):
     return (outputs.argmax(dim=1) == targets).float().mean()
 ```
 
 A training metric must provide:
 
-```python id="c7w3m5"
+```python
 reset()
 update(outputs, targets)
 compute()
@@ -388,7 +385,7 @@ For training-related DanFlow components, `compute()` should return a scalar valu
 
 Prefer:
 
-```python id="m1k8p4"
+```python
 return torch.tensor(value)
 ```
 
@@ -408,28 +405,24 @@ Because `Trainer` derives the metric name from the metric object's class name, a
 
 DanFlow has two metric interfaces:
 
-```text id="h5d2q7"
-Training-related components
-    Trainer
-    ModelChecker
-    LearningRateSelector
-    SmallGrid
+- Training-related components
+    - Trainer
+    - ModelChecker
+    -LearningRateSelector
+    - SmallGrid
 
-    Required metric lifecycle
-        reset()
-        update(outputs, targets)
-        compute()
-```
+    - Required metric lifecycle
+        - reset()
+        - update(outputs, targets)
+        - compute()
 
 and:
 
-```text id="z8f4m1"
-Evaluation
-    Evaluator
+- Evaluation
+    - Evaluator
 
-    Required metric interface
-        metric(outputs, targets)
-```
+    - Required metric interface
+        - metric(outputs, targets)
 
 For training metrics, the implementation must maintain state across batches and return a scalar value from `compute()` that supports `.item()`.
 

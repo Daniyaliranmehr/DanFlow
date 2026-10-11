@@ -1,4 +1,4 @@
-# DanFlow Architecture
+﻿# DanFlow Architecture
 
 DanFlow is a lightweight, PyTorch-oriented library that provides utilities around the model development workflow.
 
@@ -10,25 +10,24 @@ This page describes the architectural boundaries between those components and ho
 
 At a high level, DanFlow is organized around several complementary responsibilities:
 
-```text
-DanFlow
-    Data
-        File and tabular data preparation
+- DanFlow
+    - Data
+        - File and tabular data preparation
 
-    Losses
-        Loss-function utilities
+    - Losses
+        - Loss-function utilities
 
-    Training
-        Trainer
-        Evaluator
-        ModelChecker
-        LearningRateSelector
-        SmallGrid
+    - Training
+        - Trainer
+        - Evaluator
+        - ModelChecker
+        - LearningRateSelector
+        - SmallGrid
 
-    Visualization
-        Data visualization
-        Training-history visualization
-```
+    - Visualization
+        - Data visualization
+        - Training-history visualization
+
 
 The package is intentionally compositional. A user can keep using standard PyTorch objects and introduce DanFlow only where a higher-level utility is useful.
 
@@ -547,12 +546,12 @@ This boundary is intentional.
 
 DanFlow adds workflow-level structure without replacing the underlying deep-learning framework.
 
-## Related Documentation
+## Related
 
-For a practical introduction, see the [Quick Start](getting_started/quickstart.md).
+For a practical introduction, see the [Quick Start](getting_started/quick_start.md).
 
 For workflow-level explanations, see the [Training Guide](guides/training.md), [Evaluation Guide](guides/evaluation.md), and [Visualization Guide](guides/visualization.md).
 
-For exact API behavior, parameters, and return values, use the [API Reference](api/).
+For exact API behavior, parameters, and return values, use the [API Reference](api-reference.md).
 
 For a complete workflow showing the components together, see the [End-to-End Example](examples/end_to_end.md).

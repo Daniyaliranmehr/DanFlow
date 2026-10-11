@@ -4,36 +4,26 @@ This example demonstrates a complete model-training workflow with DanFlow.
 
 The workflow is organized into four stages:
 
-```
-Data Preparation
-    Dataset
-    DataLoader
-```
+- Data Preparation
+    - Dataset
+    - DataLoader
 
-```
-Model Setup
-    Model
-    Loss + Optimizer + Metric
-```
+- Model Setup
+    - Model
+    - Loss + Optimizer + Metric
 
-```
-Validation & Tuning
-    ModelChecker
-    LearningRateSelector
-    SmallGrid
-```
+- Validation & Tuning
+    - ModelChecker
+    - LearningRateSelector
+    - SmallGrid
 
-```
-Training
-    Final Model + Optimizer
-    Trainer.fit()
-```
+- Training
+    - Final Model + Optimizer
+    - Trainer.fit()
 
-```
-Results
-    History
-    Best Checkpoint
-```
+- Results
+    - History
+    - Best Checkpoint
 
 The example uses a small binary-classification dataset generated with PyTorch.
 
@@ -498,36 +488,26 @@ The model is now restored to the state corresponding to the saved best validatio
 ## Complete Workflow
 
 The core training workflow can now be summarized as:
-```
-Data Preparation
-    Dataset
-    DataLoader
-```
+1. Data Preparation
+    - Dataset
+    - DataLoader
 
-```
-Model Setup
-    Model
-    Loss + Optimizer + Metric
-```
+2. Model Setup
+    - Model
+    - Loss + Optimizer + Metric
 
-```
-Validation & Tuning
-    ModelChecker
-    LearningRateSelector
-    SmallGrid
-```
+3. Validation & Tuning
+    - ModelChecker
+    - LearningRateSelector
+    - SmallGrid
 
-```
-Training
-    Final Model + Optimizer
-    Trainer.fit()
-```
+4. Training
+    - Final Model + Optimizer
+    - Trainer.fit()
 
-```
-Results
-    History
-    Best Checkpoint
-```
+5. Results
+    - History
+    - Best Checkpoint
 
 
 ```python
@@ -670,37 +650,6 @@ history = trainer.fit(
 )
 ```
 
-The training workflow is now organized around its major stages rather than a linear chain:
-```
-Data Preparation
-    Dataset
-    DataLoader
-```
-
-```
-Model Setup
-    Model
-    Loss + Optimizer + Metric
-```
-
-```
-Validation & Tuning
-    ModelChecker
-    LearningRateSelector
-    SmallGrid
-```
-
-```
-Training
-    Final Model + Optimizer
-    Trainer.fit()
-```
-
-```
-Results
-    History
-    Best Checkpoint
-```
-
+The training workflow is now organized around its major stages rather than a linear chain.
 
 The trained model and its history can now be passed to the evaluation and visualization workflows.

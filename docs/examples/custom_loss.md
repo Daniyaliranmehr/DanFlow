@@ -4,22 +4,20 @@ This example demonstrates how to define and use a custom PyTorch loss function w
 
 The example uses a small regression problem and compares two training setups:
 
-```text
-MSE Loss
-    Model
-    Trainer
-    Training
+- MSE Loss
+    - Model
+    - Trainer
+    - Training
 
-Custom Huber Loss
-    Model
-    Trainer
-    Training
+- Custom Huber Loss
+    - Model
+    - Trainer
+    - Training
 
-Comparison
-    Common Test Metric
-    Training History
-    Validation Performance
-```
+- Comparison
+    - Common Test Metric
+    - Training History
+    - Validation Performance
 
 The custom loss is implemented directly in the example to demonstrate how user-defined objectives can be passed to DanFlow's `Trainer`.
 
@@ -504,25 +502,23 @@ print(f"Validation MAE: {custom_result['Metric']:.4f}")
 
 The important part of the workflow is that the training infrastructure does not change when the loss changes:
 
-```text
-Data
-    Dataset
-    DataLoader
+- Data
+    - Dataset
+    - DataLoader
 
-Experiment A
-    MSELoss
-    Trainer
-    Training
+- Experiment A
+    - MSELoss
+    - Trainer
+    - Training
 
-Experiment B
-    Custom Loss
-    Trainer
-    Training
+- Experiment B
+    - Custom Loss
+    - Trainer
+    - Training
 
-Comparison
-    Common Evaluation Loss
-    Common Evaluation Metric
-    Training History
-```
+- Comparison
+    - Common Evaluation Loss
+    - Common Evaluation Metric
+    - Training History
 
 This pattern can be adapted to other regression objectives by replacing `custom_huber_loss` with a different differentiable function that accepts model outputs and targets and returns a scalar tensor.

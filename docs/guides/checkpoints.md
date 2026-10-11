@@ -10,7 +10,7 @@ This guide focuses on the checkpoint lifecycle and does not cover the general tr
 
 Enable checkpoint saving with `save_best=True`:
 
-```python id="a7k3p1"
+```python
 history = trainer.fit(
     train_loader=train_loader,
     valid_loader=valid_loader,
@@ -28,7 +28,7 @@ The path is controlled by `checkpoint_path`.
 
 For example:
 
-```text id="m2r8v4"
+```text
 artifacts/
     best_model.pth
 ```
@@ -39,7 +39,7 @@ The filename and directory are not special to DanFlow. They are determined by th
 
 A checkpoint created by `Trainer.fit(save_best=True)` is a dictionary containing four entries:
 
-```python id="k5d1q8"
+```python
 {
     "model_state_dict": ...,
     "optimizer_state_dict": ...,
@@ -63,7 +63,7 @@ The checkpoint is therefore more than a collection of model weights. It also pre
 
 A checkpoint can be loaded as a dictionary and inspected before loading anything into a model:
 
-```python id="h4v9c2"
+```python
 import torch
 
 checkpoint = torch.load(
@@ -75,14 +75,14 @@ checkpoint = torch.load(
 
 Inspect its keys:
 
-```pycon id="n6s2x7"
+```pycon
 >>> checkpoint.keys()
 dict_keys(['model_state_dict', 'optimizer_state_dict', 'epoch', 'best_valid_loss'])
 ```
 
 The saved metadata can also be inspected directly:
 
-```pycon id="q8c3m5"
+```pycon
 >>> checkpoint["epoch"]
 <checkpoint epoch>
 >>> checkpoint["best_valid_loss"]
@@ -97,7 +97,7 @@ The model parameters are stored under `model_state_dict`.
 
 They should be loaded into a model instance using that entry:
 
-```python id="v3m7k1"
+```python
 model.load_state_dict(
     checkpoint["model_state_dict"]
 )
@@ -105,7 +105,7 @@ model.load_state_dict(
 
 Do not pass the complete checkpoint dictionary directly to `load_state_dict()`:
 
-```python id="e1q9r4"
+```python
 model.load_state_dict(checkpoint)
 ```
 
@@ -119,7 +119,7 @@ For the full model-loading and evaluation workflow, see the [Evaluation Guide](e
 
 The optimizer state is stored separately:
 
-```python id="c6k2p8"
+```python
 optimizer.load_state_dict(
     checkpoint["optimizer_state_dict"]
 )
@@ -143,7 +143,7 @@ A checkpoint can nevertheless be used for manual continuation by:
 
 For example:
 
-```python id="r5w8n3"
+```python
 import torch
 import torch.optim as optim
 
@@ -180,7 +180,7 @@ trainer = Trainer(
 
 The restored model and optimizer can then be passed to a new training run:
 
-```python id="p4m6x9"
+```python
 history = trainer.fit(
     train_loader=train_loader,
     valid_loader=valid_loader,
@@ -198,13 +198,11 @@ The checkpoint saved by DanFlow represents the epoch with the best validation lo
 
 This means:
 
-```text id="x7p2m5"
-Final epoch
-    May not be the checkpoint epoch
+- Final epoch
+    - May not be the checkpoint epoch
 
-Checkpoint
-    Corresponds to the best validation loss
-```
+- Checkpoint
+    - Corresponds to the best validation loss
 
 For example, a model may continue training after its best validation loss has already been reached. The checkpoint still contains the earlier model state if that earlier state had the lower validation loss.
 
@@ -214,21 +212,17 @@ This is the main reason to use `save_best=True` when the saved model should repr
 
 The checkpoint created by `Trainer.fit()` contains exactly the following state:
 
-```text id="s4k8q2"
-model_state_dict
-optimizer_state_dict
-epoch
-best_valid_loss
-```
+1. model_state_dict
+2. optimizer_state_dict
+3. epoch
+4. best_valid_loss
 
 It does not include other training information such as:
 
-```text id="d9m3v6"
-Training history
-Metric state
-Learning-rate scheduler state
-Random-number-generator state
-```
+* Training history
+* Metric state
+* Learning-rate scheduler state
+* Random-number-generator state
 
 Such information must be managed separately when a project requires exact experiment reproducibility or a more complete training-resume mechanism.
 
@@ -236,7 +230,7 @@ Such information must be managed separately when a project requires exact experi
 
 A checkpoint can be loaded on a CPU even when it was originally created in another environment by specifying `map_location="cpu"`:
 
-```python id="y6p2r8"
+```python
 checkpoint = torch.load(
     "artifacts/best_model.pth",
     map_location="cpu",
@@ -252,7 +246,7 @@ The model can then be moved to the appropriate device after loading.
 
 For projects with multiple experiments, keeping checkpoints in a dedicated directory makes them easier to manage:
 
-```text id="z3v8n1"
+```text
 project/
     artifacts/
         best_model.pth
@@ -260,7 +254,7 @@ project/
 
 A more descriptive naming scheme can also be useful when several experiments are stored together:
 
-```text id="f7c2m6"
+```text
 artifacts/
     baseline_best.pth
     tuned_best.pth
@@ -275,7 +269,7 @@ The filename itself has no special meaning to DanFlow. The important part is tha
 
 Use:
 
-```python id="b4k9r2"
+```python
 model.load_state_dict(
     checkpoint["model_state_dict"]
 )
@@ -283,7 +277,7 @@ model.load_state_dict(
 
 rather than:
 
-```python id="w8m3p5"
+```python
 model.load_state_dict(checkpoint)
 ```
 
@@ -293,7 +287,7 @@ When continuing training, restoring only the model parameters does not restore t
 
 Use:
 
-```python id="c2x7m4"
+```python
 optimizer.load_state_dict(
     checkpoint["optimizer_state_dict"]
 )
@@ -319,23 +313,21 @@ When the architecture changes, the parameter names or tensor shapes may no longe
 
 A typical checkpoint workflow in DanFlow is:
 
-```text id="e5r2k7"
-Training
-    Run Trainer.fit()
-    Enable save_best=True
+- Training
+    - Run Trainer.fit()
+    - Enable save_best=True
 
-Checkpoint
-    Save the best validation-loss state
+- Checkpoint
+    - Save the best validation-loss state
 
-Later
-    Load checkpoint
-    Restore model state
+- Later
+    - Load checkpoint
+    - Restore model state
 
-Optional continuation
-    Restore optimizer state
-    Create a Trainer
-    Start a new training run
-```
+- Optional continuation
+    - Restore optimizer state
+    - Create a Trainer
+    - Start a new training run
 
 For evaluating a saved model, continue with the [Evaluation Guide](evaluation.md).
 

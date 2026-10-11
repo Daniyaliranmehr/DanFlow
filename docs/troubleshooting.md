@@ -1,10 +1,10 @@
-# Troubleshooting
+﻿# Troubleshooting
 
 This page provides practical solutions for common problems encountered when using DanFlow.
 
 Use the symptom that matches the problem you are seeing, then check the corresponding cause and solution.
 
-For complete API details, see the [API Reference](api-reference.md).
+For complete API details, see the [API](api-reference.md).
 
 
 ## Installation and Environment
@@ -15,19 +15,15 @@ If `import danflow` fails because a dependency is missing, verify that the requi
 
 Common missing dependencies include:
 
-```text
-pandas
-matplotlib
-tqdm
-rich
-prettytable
-```
+- pandas
+- matplotlib
+- tqdm
+- rich
+- prettytable
 
 Some workflows may also require:
 
-```text
-torchmetrics
-```
+- torchmetrics
 
 Install the missing package in the same environment where DanFlow is being used.
 
@@ -917,22 +913,20 @@ Then run the final training workflow with the selected configuration.
 
 When the source of an error is unclear, inspect the pipeline in this order:
 
-```text
-1. Python environment
-2. DanFlow imports
-3. Input file paths
-4. Dataset length and sample structure
-5. DataLoader batches
-6. Model input shape
-7. Model output shape
-8. Target shape and dtype
-9. Loss function compatibility
-10. Metric interface
-11. Training call arguments
-12. Checkpoint loading
-13. Evaluation inputs
-14. Visualization inputs
-```
+>1. Python environment
+>2. DanFlow imports
+>3. Input file paths
+>4. Dataset length and sample structure
+>5. DataLoader batches
+>6. Model input shape
+>7. Model output shape
+>8. Target shape and dtype
+>9. Loss function compatibility
+>10. Metric interface
+>11. Training call arguments
+>12. Checkpoint loading
+>13. Evaluation inputs
+>14. Visualization inputs
 
 For model-related problems, a useful first diagnostic is to run:
 
@@ -957,9 +951,9 @@ These checks can identify shape, loss, and basic learning-path problems before a
 When an error remains unclear, inspect the exact exception message first and compare it with the corresponding API page before changing multiple parts of the pipeline at once.
 
 
-## Related Documentation
+## Related
 
-* [Getting Started](getting_started/quickstart.md)
+* [Getting Started](getting_started/quick_start.md)
 * [Data Guide](guides/data.md)
 * [Training Guide](guides/training.md)
 * [Metrics Guide](guides/metrics.md)

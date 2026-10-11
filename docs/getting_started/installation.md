@@ -6,16 +6,16 @@ This guide covers installing DanFlow, preparing its dependencies, and verifying 
 
 ## Requirements
 
-DanFlow requires:
+DanFlow requires the following dependencies:
 
-* Python 3.10 or newer
-* PyTorch
-* NumPy
-* pandas
-* Matplotlib
-* tqdm
-* rich
-* PrettyTable
+- [Python 3.10 or newer](https://www.python.org/downloads/)
+- [PyTorch](https://pytorch.org/get-started/locally/)
+- [NumPy](https://numpy.org/install/)
+- [pandas](https://pandas.pydata.org/docs/getting_started/install.html)
+- [Matplotlib](https://matplotlib.org/stable/install/index.html)
+- [tqdm](https://tqdm.github.io/)
+- [Rich](https://rich.readthedocs.io/en/stable/introduction.html)
+- [PrettyTable](https://pypi.org/project/prettytable/)
 
 The project metadata currently declares only `torch` and `numpy` as package dependencies, while the source code also imports `pandas`, `matplotlib`, `tqdm`, `rich`, and `prettytable`.
 
@@ -105,7 +105,7 @@ If these imports complete without an exception, the main DanFlow modules are ava
 
 ## Version Compatibility
 
-The project currently specifies the following Python requirement:
+DanFlow currently specifies the following Python requirement:
 
 | Component    | Requirement                                     |
 | ------------ | ----------------------------------------------- |
@@ -156,16 +156,16 @@ Using `python -m pip` helps ensure that `pip` belongs to the selected Python int
 
 A standard DanFlow environment should provide:
 
-```text
-Python >= 3.10
-PyTorch
-NumPy
-pandas
-Matplotlib
-tqdm
-rich
-PrettyTable
-```
+
+- Python >= 3.10
+- PyTorch
+- NumPy
+- pandas
+- Matplotlib
+- tqdm
+- rich
+- PrettyTable
+
 
 Install `torchmetrics` separately when using examples or workflows that require TorchMetrics-based stateful metrics.
 

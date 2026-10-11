@@ -4,7 +4,7 @@ DanFlow provides utilities for data preparation, loss functions, model training,
 
 This page provides an overview of the available public APIs and links to their detailed API documentation.
 
-For complete parameter descriptions, return values, exceptions, and method-level behavior, see the corresponding pages under [`docs/api/`](api/).
+For complete parameter descriptions, return values, exceptions, and method-level behavior, see the [API Documentation](api/index.md).
 
 
 ## Data

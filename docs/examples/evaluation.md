@@ -6,19 +6,19 @@ The training process is intentionally omitted. The example assumes that the trai
 
 The evaluation workflow is:
 
-Trained Checkpoint:
--    Model Architecture
--    Saved Parameters
+1. Trained Checkpoint:
+    - Model Architecture
+    - Saved Parameters
 
 
-Test Data:
--    Input Tensors
--    Target Tensors
+2. Test Data:
+    - Input Tensors
+    - Target Tensors
 
 
-Evaluation
--    Evaluator
--   Test Results
+3. Evaluation
+    - Evaluator
+    - Test Results
 
 
 ## Recreate the Model Architecture
@@ -251,21 +251,21 @@ The numerical values depend on the trained checkpoint used for the example.
 
 The complete evaluation process consists of these stages:
 
-Model Preparation:
--    Recreate the model architecture
--    Load the trained checkpoint
+- Model Preparation:
+    - Recreate the model architecture
+    - Load the trained checkpoint
 
-Test Data:
--    Prepare test inputs
--    Prepare test targets
+- Test Data:
+    - Prepare test inputs
+    - Prepare test targets
 
-Evaluation:
--    Create Evaluator
--    Run test()
+- Evaluation:
+    - Create Evaluator
+    - Run test()
 
-Results:
--    Test Loss
--    Test Metric
+- Results:
+    - Test Loss
+    - Test Metric
 
 At this point, the model has been evaluated on data that was not used during training or hyperparameter selection.
 

@@ -4,18 +4,16 @@ This example demonstrates a practical visualization workflow with DanFlow.
 
 The workflow is divided into two stages:
 
-```text
-Data Visualization
-    Dataset
-    Feature Relationships
-    Feature Distributions
-    Feature Spread
+- Data Visualization
+    - Dataset
+    - Feature Relationships
+    - Feature Distributions
+    - Feature Spread
 
-Training Visualization
-    Loss History
-    Metric History
-    Combined Training History
-```
+- Training Visualization
+    - Loss History
+    - Metric History
+    - Combined Training History
 
 The examples use one deterministic dataset and one training history so the outputs can be reproduced consistently.
 
@@ -62,7 +60,7 @@ plot_correlation_heatmap(
 >>> plot_correlation_heatmap(data, figsize=(8, 6))
 ```
 
-![Correlation heatmap](../assets/correlation_heatmap.png)
+![Correlation heatmap](../assets/correlation_heatmap.png){ width="600" }
 
 ### Single-Feature Histogram
 
@@ -83,7 +81,7 @@ plot_histogram(
 >>> plot_histogram(data, column="feature_1", bins=5, figsize=(8, 5))
 ```
 
-![Feature histogram](../assets/histogram.png)
+![Feature histogram](../assets/histogram.png){ width="600" }
 
 ### Multiple Histograms
 
@@ -121,7 +119,7 @@ plot_multi_histograms(
 ... )
 ```
 
-![Multiple histograms](../assets/multi_histograms.png)
+![Multiple histograms](../assets/multi_histograms.png){ width="600" }
 
 ### Single-Feature Box Plot
 
@@ -141,7 +139,7 @@ plot_boxplot(
 >>> plot_boxplot(data, column="feature_2", figsize=(8, 5))
 ```
 
-![Feature box plot](../assets/boxplot.png)
+![Feature box plot](../assets/boxplot.png){ width="600" }
 
 ### Multiple Box Plots
 
@@ -175,7 +173,7 @@ plot_multi_boxplots(
 ... )
 ```
 
-![Multiple box plots](../assets/multi_boxplots.png)
+![Multiple box plots](../assets/multi_boxplots.png){ width="600" }
 
 ## Training Visualization
 
@@ -215,7 +213,7 @@ plot_loss_history(
 ... )
 ```
 
-![Loss history](../assets/loss_history.png)
+![Loss history](../assets/loss_history.png){ width="600" }
 
 ### Metric History
 
@@ -239,7 +237,7 @@ plot_metric_history(
 ... )
 ```
 
-![Metric history](../assets/metric_history.png)
+![Metric history](../assets/metric_history.png){ width="600" }
 
 ### Combined Training History
 
@@ -265,7 +263,7 @@ plot_training_history(
 ... )
 ```
 
-![Combined training history](../assets/training_history.png)
+![Combined training history](../assets/training_history.png){ width="600" }
 
 ## Saving Plots
 
@@ -358,17 +356,15 @@ plot_training_history(
 
 The workflow provides both views of the model-development process:
 
-```text
-Data Visualization
-    Dataset Structure
-    Feature Relationships
-    Feature Distributions
-    Feature Spread
+- Data Visualization
+    - Dataset Structure
+    - Feature Relationships
+    - Feature Distributions
+    - Feature Spread
 
-Training Visualization
-    Loss History
-    Metric History
-    Combined Training History
-```
+- Training Visualization
+    - Loss History
+    - Metric History
+    - Combined Training History
 
 The resulting figures can then be used when inspecting the dataset and reviewing model-training behavior.

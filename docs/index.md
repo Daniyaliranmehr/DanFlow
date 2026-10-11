@@ -1,4 +1,4 @@
-# DanFlow Documentation
+﻿# ![DanFlow logo](assets/logo.png){ .danflow-home-logo } DanFlow
 
 Welcome to the DanFlow documentation.
 
@@ -20,7 +20,7 @@ Set up DanFlow and its required environment dependencies.
 
 Train your first model with DanFlow using a minimal workflow.
 
-[Quick Start](getting_started/quickstart.md)
+[Quick Start](getting_started/quick_start.md)
 
 ## Guides
 
@@ -153,7 +153,7 @@ Functions for data and training-history visualization.
 | I want to...                       | Start with                                      |
 | ---------------------------------- | ----------------------------------------------- |
 | Install DanFlow                    | [Installation](getting_started/installation.md) |
-| Run my first DanFlow workflow      | [Quick Start](getting_started/quickstart.md)    |
+| Run my first DanFlow workflow      | [Quick Start](getting_started/quick_start.md)    |
 | Prepare a dataset                  | [Data Guide](guides/data.md)                    |
 | Build a training workflow          | [Training Guide](guides/training.md)            |
 | Create a compatible metric         | [Metrics Guide](guides/metrics.md)              |
@@ -170,19 +170,19 @@ Functions for data and training-history visualization.
 
 DanFlow documentation follows four levels:
 
-```text
-Getting Started
-    Installation
-    Quick Start
 
-Guides
-    Learn how a specific DanFlow workflow works
+- Getting Started
+    - Installation
+    - Quick Start
 
-Examples
-    Follow a complete practical workflow
+- Guides
+    - Learn how a specific DanFlow workflow works
 
-API Reference
-    Look up exact public interfaces and behavior
-```
+- Examples
+    - Follow a complete practical workflow
+
+- API Reference
+    - Look up exact public interfaces and behavior
+
 
 Each section has a separate purpose so that concepts, practical workflows, and API reference material remain clearly separated.

@@ -55,7 +55,7 @@ Mean loss computed over all elements.
 ... )
 
 >>> loss
-tensor(0.0700)
+tensor(0.0350)
 ```
 
 ## log_cosh_loss()
@@ -93,5 +93,5 @@ Mean Log-Cosh loss computed over all elements.
 ... )
 
 >>> loss
-tensor(0.0350)
+tensor(0.0343)
 ```

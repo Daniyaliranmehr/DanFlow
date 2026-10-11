@@ -12,24 +12,22 @@ This guide explains how to organize the evaluation stage, how to prepare the tes
 
 A typical evaluation workflow can be organized as:
 
-```text
-Trained model
-    Load the intended checkpoint
+- Trained model
+    - Load the intended checkpoint
 
-Test data
-    Prepare test inputs
-    Prepare test targets
+- Test data
+    - Prepare test inputs
+    - Prepare test targets
 
-Evaluation
-    Select loss
-    Select metric
-    Run Evaluator.test()
+- Evaluation
+    - Select loss
+    - Select metric
+    - Run Evaluator.test()
 
-Interpretation
-    Test loss
-    Test metric
-    Compare with training and validation
-```
+- Interpretation
+    - Test loss
+    - Test metric
+    - Compare with training and validation
 
 The central principle is that the test set should remain separate from the model-development process until the final evaluation stage.
 
@@ -53,16 +51,14 @@ It should provide a final measurement of the selected model on data that was not
 
 A useful separation is:
 
-```text
-Training set
-    Used to update model parameters
+- Training set
+    - Used to update model parameters
 
-Validation set
-    Used during model development
+- Validation set
+    - Used during model development
 
-Test set
-    Used for final evaluation
-```
+- Test set
+    - Used for final evaluation
 
 ### Do Not Tune on the Test Set
 
@@ -70,18 +66,16 @@ A common mistake is checking test performance repeatedly and then changing the m
 
 For example:
 
-```text
-Train model
-    Evaluate test set
+- Train model
+    - Evaluate test set
 
-Change learning rate
-    Evaluate test set
+- Change learning rate
+    - Evaluate test set
 
-Change architecture
-    Evaluate test set
+- Change architecture
+    - Evaluate test set
 
-Choose the configuration with the best test result
-```
+- Choose the configuration with the best test result
 
 In this situation, the test set has become part of the model-selection process.
 
@@ -94,7 +88,7 @@ Before using `Evaluator`, the test inputs and targets should already be prepared
 
 The current `Evaluator.test()` interface accepts two tensors:
 
-```python id="5l8h6d"
+```python
 results = evaluator.test(
     x_test,
     y_test,
@@ -119,17 +113,15 @@ Do not fit a new scaler or other preprocessing transform on the test set.
 
 Suppose the training workflow used a preprocessing transformation:
 
-```text
-Raw training data
-    Fit preprocessing
-    Transform training data
+* Raw training data
+    * Fit preprocessing
+    * Transform training data
 
-Validation data
-    Transform using the same fitted preprocessing
+* Validation data
+    * Transform using the same fitted preprocessing
 
-Test data
-    Transform using the same fitted preprocessing
-```
+* Test data
+    * Transform using the same fitted preprocessing
 
 The test set should not be treated as an independent dataset from which preprocessing parameters are learned.
 
@@ -142,7 +134,7 @@ The evaluation stage should use the model state that you actually intend to eval
 
 If the model was trained with:
 
-```python id="nquf32"
+```python
 history = trainer.fit(
     train_loader=train_loader,
     valid_loader=valid_loader,
@@ -154,7 +146,7 @@ history = trainer.fit(
 
 the resulting checkpoint is a dictionary containing:
 
-```text id="o8rt3f"
+```text
 model_state_dict
 optimizer_state_dict
 epoch
@@ -165,7 +157,7 @@ The model architecture must be recreated before loading the saved parameters.
 
 For example:
 
-```python id="1r9os7"
+```python
 def build_model():
     return nn.Sequential(
         nn.Linear(4, 16),
@@ -178,7 +170,7 @@ model = build_model()
 
 Then load the model state:
 
-```python id="z2dh0f"
+```python
 checkpoint = torch.load(
     "artifacts/best_model.pth",
     map_location="cpu",
@@ -219,7 +211,7 @@ The optimizer state stored in the checkpoint is useful when continuing training,
 
 The evaluation workflow can therefore load:
 
-```python id="d3o5vh"
+```python
 checkpoint["model_state_dict"]
 ```
 
@@ -232,13 +224,13 @@ The evaluation loss should normally match the loss used during model development
 
 For example, if a classification model was trained using:
 
-```python id="2u3l4t"
+```python
 loss_fn = nn.CrossEntropyLoss()
 ```
 
 the same loss can be used for final evaluation:
 
-```python id="f8x8pc"
+```python
 evaluator = Evaluator(
     model=model,
     loss_fn=loss_fn,
@@ -257,7 +249,7 @@ The metric should reflect the question you actually care about.
 
 For a classification example, an accuracy function might be:
 
-```python id="nq3m8k"
+```python
 def accuracy(outputs, targets):
     predictions = outputs.argmax(dim=1)
     return (predictions == targets).float().mean()
@@ -265,7 +257,7 @@ def accuracy(outputs, targets):
 
 Then pass the callable metric to `Evaluator`:
 
-```python id="0zi7eq"
+```python
 evaluator = Evaluator(
     model=model,
     loss_fn=loss_fn,
@@ -277,13 +269,13 @@ This is different from the metric interface used by `Trainer`, `ModelChecker`, a
 
 For `Evaluator`, the metric is a callable:
 
-```text id="m5h4fc"
+```text
 metric(outputs, targets)
 ```
 
 It does not need the stateful:
 
-```text id="zg7q1n"
+```text
 reset()
 update()
 compute()
@@ -304,13 +296,11 @@ Before evaluating the final model, decide what performance characteristics matte
 
 Depending on the project, these may include:
 
-```text id="j4q7d1"
-Accuracy
-Precision
-Recall
-F1
-Task-specific metrics
-```
+- Accuracy
+- Precision
+- Recall
+- F1
+- Task-specific metrics
 
 The appropriate metric depends on the model's objective and the consequences of different types of errors.
 
@@ -323,7 +313,7 @@ The important principle is:
 
 Once the model, loss, metric, and test tensors are ready, create the evaluator:
 
-```python id="z2so1f"
+```python
 from danflow.training import Evaluator
 
 evaluator = Evaluator(
@@ -335,7 +325,7 @@ evaluator = Evaluator(
 
 Then evaluate the test tensors:
 
-```python id="0xyk8k"
+```python
 results = evaluator.test(
     x_test,
     y_test,
@@ -346,7 +336,7 @@ The method expects the test inputs and targets directly.
 
 It does not expect a `DataLoader`:
 
-```python id="6bfgf7"
+```python
 evaluator.test(
     test_loader,
 )
@@ -356,7 +346,7 @@ is not the correct interface.
 
 Use:
 
-```python id="dcbjch"
+```python
 evaluator.test(
     x_test,
     y_test,
@@ -369,14 +359,14 @@ instead.
 
 `Evaluator.test()` returns a dictionary containing the metric and loss:
 
-```python id="76lpgu"
+```python
 results["Metric"]
 results["Loss"]
 ```
 
 The result structure is:
 
-```text id="teqjwf"
+```text
 {
     "Metric": ...,
     "Loss": ...
@@ -385,7 +375,7 @@ The result structure is:
 
 Do not unpack the dictionary as though the method returned a tuple:
 
-```python id="vlzhm0"
+```python
 loss, metric = evaluator.test(
     x_test,
     y_test,
@@ -405,11 +395,9 @@ For example, a cross-entropy value should not be interpreted in exactly the same
 
 The most useful comparison is usually:
 
-```text
-Training loss
-Validation loss
-Test loss
-```
+- Training loss
+- Validation loss
+- Test loss
 
 Look for consistency across these measurements rather than relying on the test-loss value alone.
 
@@ -434,10 +422,8 @@ The test metric should be interpreted according to the metric itself.
 
 For example, with accuracy:
 
-```text
-Test metric
-    Proportion of correctly classified samples
-```
+- Test metric
+    - Proportion of correctly classified samples
 
 For metrics where larger values indicate better performance, a larger value generally represents better performance.
 
@@ -451,22 +437,6 @@ A metric should always be interpreted within its definition and task context.
 ## Comparing Training, Validation, and Test Results
 
 A final evaluation is more informative when viewed together with the training history.
-
-For example:
-
-```text id="wvd5rf"
-Training
-    Train loss
-    Train metric
-
-Validation
-    Validation loss
-    Validation metric
-
-Test
-    Test loss
-    Test metric
-```
 
 The goal is not to force these values to be identical.
 
@@ -502,18 +472,16 @@ The test set should normally appear near the end of the model-development proces
 
 A practical sequence is:
 
-```text
-Training data
-    Train model
+- Training data
+    - Train model
 
-Validation data
-    Select configuration
-    Monitor training
-    Select checkpoint
+- Validation data
+    - Select configuration
+    - Monitor training
+    - Select checkpoint
 
-Test data
-    Final evaluation
-```
+- Test data
+    - Final evaluation
 
 Once test results have been used to make decisions about the model, the test set is no longer purely a final holdout.
 
@@ -528,7 +496,7 @@ A checkpoint may represent a particular training epoch rather than the model sta
 
 When `save_best=True` is used, load:
 
-```python id="pkmw7e"
+```python
 checkpoint["model_state_dict"]
 ```
 
@@ -538,7 +506,7 @@ from the checkpoint produced for the selected validation criterion.
 
 `Evaluator.test()` expects:
 
-```python id="x_test"
+```python
 x_test
 y_test
 ```
@@ -551,7 +519,7 @@ It does not consume a `DataLoader`.
 
 Incorrect:
 
-```python id="sb8z8d"
+```python
 loss, metric = evaluator.test(
     x_test,
     y_test,
@@ -560,7 +528,7 @@ loss, metric = evaluator.test(
 
 Correct:
 
-```python id="g1lcf6"
+```python
 results = evaluator.test(
     x_test,
     y_test,
@@ -574,7 +542,7 @@ metric = results["Metric"]
 
 The evaluation metric should be a callable:
 
-```python id="l8f8hw"
+```python
 metric(outputs, targets)
 ```
 
@@ -598,7 +566,7 @@ A checkpoint produced by `Trainer.fit(save_best=True)` is a dictionary containin
 
 Use:
 
-```python id="uy2n8v"
+```python
 model.load_state_dict(
     checkpoint["model_state_dict"],
 )
@@ -606,7 +574,7 @@ model.load_state_dict(
 
 rather than:
 
-```python id="dt4hf6"
+```python
 model.load_state_dict(checkpoint)
 ```
 
@@ -631,7 +599,7 @@ Build the same architecture used when the checkpoint was created.
 
 Load:
 
-```python id="x26x2t"
+```python
 checkpoint["model_state_dict"]
 ```
 
@@ -641,7 +609,7 @@ into the evaluation model.
 
 Prepare:
 
-```python id="ar92q5"
+```python
 x_test
 y_test
 ```
@@ -658,7 +626,7 @@ Use a callable metric that directly evaluates model outputs against targets.
 
 ### 8. Create the Evaluator
 
-```python id="5uz5wu"
+```python
 evaluator = Evaluator(
     model=model,
     loss_fn=loss_fn,
@@ -668,7 +636,7 @@ evaluator = Evaluator(
 
 ### 9. Run the Test
 
-```python id="6tsw4w"
+```python
 results = evaluator.test(
     x_test,
     y_test,
@@ -677,7 +645,7 @@ results = evaluator.test(
 
 ### 10. Inspect the Results
 
-```python id="bq3h7y"
+```python
 test_loss = results["Loss"]
 test_metric = results["Metric"]
 ```
@@ -699,17 +667,15 @@ Training history can help explain why a particular test result occurred.
 
 For example, the training history can reveal:
 
-```text
-Training loss decreases
-Validation loss decreases
-Validation loss begins increasing
-```
+- Training loss decreases
+- Validation loss decreases
+- Validation loss begins increasing
 
 while the final test result provides a measurement of how the selected model performs on the held-out test data.
 
 Use the training visualization tools to inspect these patterns:
 
-```python id="2fgrcs"
+```python
 from danflow.visualization import (
     plot_loss_history,
     plot_metric_history,

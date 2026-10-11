@@ -18,36 +18,35 @@ This guide explains how to organize these decisions with DanFlow and how to move
 
 A typical workflow can be organized as:
 
-```text
-Data
-    Dataset
-    DataLoader
-    Training / validation split
+- Data
+    - Dataset
+    - DataLoader
+    - Training / validation split
 
-Model setup
-    Model
-    Loss
-    Optimizer
-    Metric
+- Model setup
+    - Model
+    - Loss
+    - Optimizer
+    - Metric
 
-Model validation
-    Forward check
-    Backward check
+- Model validation
+    - Forward check
+    - Backward check
 
-Training configuration
-    Learning-rate search
-    Hyperparameter search
+- Training configuration
+    - Learning-rate search
+    - Hyperparameter search
 
-Final training
-    Trainer
-    Validation
-    Checkpoint
+- Final training
+    - Trainer
+    - Validation
+    - Checkpoint
 
-Training analysis
-    History
-    Loss
-    Metric
-```
+- Training analysis
+    - History
+    - Loss
+    - Metric
+
 
 The exact workflow depends on the project, but the order of these decisions helps prevent common training problems.
 

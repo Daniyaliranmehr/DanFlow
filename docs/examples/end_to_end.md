@@ -6,37 +6,35 @@ The example uses a synthetic binary-classification dataset and combines DanFlow'
 
 The workflow is organized into the following stages:
 
-```text
-Data Preparation
-    Dataset
-    Train / Validation / Test Split
+- Data Preparation
+    - Dataset
+    - Train / Validation / Test Split
 
-Model Setup
-    Model
-    Loss
-    Optimizer
-    Metric
+- Model Setup
+    - Model
+    - Loss
+    - Optimizer
+    - Metric
 
-Validation & Tuning
-    ModelChecker
-    LearningRateSelector
-    SmallGrid
+- Validation & Tuning
+    - ModelChecker
+    - LearningRateSelector
+    - SmallGrid
 
-Final Training
-    Final Model
-    Trainer.fit()
-    Best Checkpoint
+- Final Training
+    - Final Model
+    - Trainer.fit()
+    - Best Checkpoint
 
-Evaluation
-    Load Checkpoint
-    Evaluator
-    Test Results
+- Evaluation
+    - Load Checkpoint
+    - Evaluator
+    - Test Results
 
-Visualization
-    Loss History
-    Metric History
-    Training History
-```
+- Visualization
+    - Loss History
+    - Metric History
+    - Training History
 
 ## Prepare the Dataset
 
@@ -44,7 +42,7 @@ Create a synthetic binary-classification dataset with four numerical features.
 
 The target is generated from a linear combination of the input features.
 
-```python id="0p2x7d"
+```python
 import torch
 
 torch.manual_seed(42)
@@ -63,7 +61,7 @@ y = (score > 0).long()
 
 Create deterministic train, validation, and test splits:
 
-```python id="8ohqis"
+```python
 indices = torch.randperm(
     len(x),
     generator=torch.Generator().manual_seed(42),
@@ -85,7 +83,7 @@ y_test = y[test_indices]
 
 Check the resulting splits:
 
-```pycon id="vw1pxv"
+```pycon
 >>> x_train.shape
 torch.Size([360, 4])
 
@@ -111,7 +109,7 @@ The test set is kept separate from the training and validation data and will onl
 
 Wrap the training and validation tensors in PyTorch datasets and data loaders.
 
-```python id="s6gfns"
+```python
 from torch.utils.data import DataLoader, TensorDataset
 
 train_dataset = TensorDataset(
@@ -143,7 +141,7 @@ The test tensors are kept available directly because `Evaluator.test()` accepts 
 
 Create a small feed-forward classifier with two output classes.
 
-```python id="48l5n0"
+```python
 import torch.nn as nn
 
 
@@ -163,7 +161,7 @@ Use cross-entropy loss for the two-class classification task.
 
 DanFlow's training workflow expects a stateful metric object with `reset()`, `update()`, and `compute()` methods, so define a small metric class for this example.
 
-```python id="8l4q8q"
+```python
 import torch
 import torch.optim as optim
 
@@ -194,7 +192,7 @@ loss_fn = nn.CrossEntropyLoss()
 
 Create a model, optimizer, and `ModelChecker` for the initial validation.
 
-```python id="x73l1l"
+```python
 from danflow.training.checker import ModelChecker
 
 model = build_model()
@@ -213,7 +211,7 @@ checker = ModelChecker(
 
 Run a forward check:
 
-```python id="wts08n"
+```python
 forward_result = checker.forward_check(
     train_loader,
     expected_output_size=2,
@@ -222,7 +220,7 @@ forward_result = checker.forward_check(
 
 Inspect the structural parts of the result:
 
-```pycon id="47f4cr"
+```pycon
 >>> forward_result.num_batches
 5
 
@@ -238,7 +236,7 @@ Inspect the structural parts of the result:
 
 The model can also be tested on a small subset to verify that the loss decreases during backpropagation:
 
-```python id="qj9e2b"
+```python
 backward_result = checker.backward_check(
     train_dataset=train_dataset,
     num_samples=128,
@@ -248,7 +246,7 @@ backward_result = checker.backward_check(
 
 Because `backward_check()` updates the model and optimizer in place, create a fresh model before starting hyperparameter search.
 
-```python id="y6d7m3"
+```python
 model = build_model()
 ```
 
@@ -256,7 +254,7 @@ model = build_model()
 
 Start with a small set of candidate learning rates.
 
-```python id="4p0h2p"
+```python
 from danflow.training.tuner import LearningRateSelector
 
 metric = BinaryAccuracy()
@@ -277,7 +275,7 @@ selector = LearningRateSelector(
 
 Run the search:
 
-```python id="qndt1t"
+```python
 lr_results = selector.search(
     train_loader,
 )
@@ -285,7 +283,7 @@ lr_results = selector.search(
 
 The results contain one record for each learning rate:
 
-```pycon id="xwhby0"
+```pycon
 >>> len(lr_results)
 3
 
@@ -295,7 +293,7 @@ dict_keys(['learning_rate', 'loss', 'metric'])
 
 Select the learning rate with the lowest final loss:
 
-```python id="j1q8fj"
+```python
 best_lr = min(
     lr_results,
     key=lambda result: result["loss"],
@@ -308,7 +306,7 @@ The selected value comes directly from the actual search results.
 
 Use `SmallGrid` to compare a small number of learning-rate and weight-decay combinations.
 
-```python id="qcnx4f"
+```python
 from danflow.training.tuner import SmallGrid
 
 grid = SmallGrid(
@@ -330,7 +328,7 @@ grid = SmallGrid(
 
 Run the grid search:
 
-```python id="w2r8cu"
+```python
 grid_results = grid.search(
     train_loader,
 )
@@ -338,7 +336,7 @@ grid_results = grid.search(
 
 The result list contains one record for every parameter combination:
 
-```pycon id="be2y4t"
+```pycon
 >>> len(grid_results)
 4
 
@@ -348,7 +346,7 @@ dict_keys(['learning_rate', 'weight_decay', 'loss', 'metric'])
 
 Select the configuration with the lowest final loss:
 
-```python id="z5c1xg"
+```python
 best_config = min(
     grid_results,
     key=lambda result: result["loss"],
@@ -357,7 +355,7 @@ best_config = min(
 
 The selected configuration can be inspected directly:
 
-```pycon id="n4z9gq"
+```pycon
 >>> best_config.keys()
 dict_keys(['learning_rate', 'weight_decay', 'loss', 'metric'])
 ```
@@ -366,7 +364,7 @@ dict_keys(['learning_rate', 'weight_decay', 'loss', 'metric'])
 
 Create a fresh model for the final training stage.
 
-```python id="3q51sa"
+```python
 model = build_model()
 
 optimizer = optim.Adam(
@@ -380,7 +378,7 @@ metric = BinaryAccuracy()
 
 Create the DanFlow `Trainer`:
 
-```python id="9zixqp"
+```python
 from danflow.training import Trainer
 
 trainer = Trainer(
@@ -399,7 +397,7 @@ Train the model using both the training and validation loaders.
 
 Save the best validation-loss checkpoint during training.
 
-```python id="p1r3yq"
+```python
 history = trainer.fit(
     train_loader=train_loader,
     valid_loader=valid_loader,
@@ -411,7 +409,7 @@ history = trainer.fit(
 
 Inspect the returned history:
 
-```pycon id="3n7tt4"
+```pycon
 >>> list(history.keys())
 ['train_loss', 'valid_loss', 'train_metric', 'valid_metric', 'metric_name', 'best_valid_loss', 'best_loss_epoch', 'best_valid_metric', 'best_metric_epoch']
 
@@ -430,7 +428,7 @@ The final evaluation should use the saved best checkpoint rather than assuming t
 
 Load the checkpoint:
 
-```python id="h2n9qk"
+```python
 checkpoint = torch.load(
     "best_model.pth",
     map_location="cpu",
@@ -440,14 +438,14 @@ checkpoint = torch.load(
 
 The checkpoint contains the model and optimizer states together with training metadata:
 
-```pycon id="t2l4m0"
+```pycon
 >>> checkpoint.keys()
 dict_keys(['model_state_dict', 'optimizer_state_dict', 'epoch', 'best_valid_loss'])
 ```
 
 Create a fresh model and restore its parameters:
 
-```python id="4c3wno"
+```python
 evaluation_model = build_model()
 
 evaluation_model.load_state_dict(
@@ -463,7 +461,7 @@ For final evaluation, use the test tensors that were not involved in training or
 
 The `Evaluator` uses a callable metric, so define an accuracy function for the test stage:
 
-```python id="o4n86p"
+```python
 def accuracy(outputs, targets):
     predictions = outputs.argmax(dim=1)
     return (predictions == targets).float().mean()
@@ -471,7 +469,7 @@ def accuracy(outputs, targets):
 
 Create the evaluator:
 
-```python id="50vkqw"
+```python
 from danflow.training import Evaluator
 
 evaluator = Evaluator(
@@ -483,7 +481,7 @@ evaluator = Evaluator(
 
 Run the evaluation:
 
-```python id="w6x4cv"
+```python
 test_result = evaluator.test(
     x_test,
     y_test,
@@ -492,14 +490,14 @@ test_result = evaluator.test(
 
 The returned object is a dictionary:
 
-```pycon id="r5k0zn"
+```pycon
 >>> list(test_result.keys())
 ['Metric', 'Loss']
 ```
 
 The numerical results depend on the trained checkpoint:
 
-```python id="bcs6f2"
+```python
 print(f"Test loss: {test_result['Loss']:.4f}")
 print(f"Test accuracy: {test_result['Metric']:.4f}")
 ```
@@ -512,7 +510,7 @@ The same history returned by `Trainer.fit()` can be used with DanFlow's training
 
 Plot the loss history:
 
-```python id="8f1t2r"
+```python
 from danflow.visualization.training import plot_loss_history
 
 plot_loss_history(
@@ -524,7 +522,7 @@ plot_loss_history(
 
 Plot the metric history:
 
-```python id="6js7hw"
+```python
 from danflow.visualization.training import plot_metric_history
 
 plot_metric_history(
@@ -536,7 +534,7 @@ plot_metric_history(
 
 The combined view can also be used:
 
-```python id="6q0y83"
+```python
 from danflow.visualization.training import plot_training_history
 
 plot_training_history(
@@ -553,7 +551,7 @@ These plots provide a visual record of the model's training and validation behav
 
 The main workflow can now be summarized in one script:
 
-```python id="be0qfu"
+```python
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -807,34 +805,32 @@ plot_training_history(
 
 The completed project now connects the main DanFlow components into one reproducible workflow:
 
-```text
-Data Preparation
-    Dataset
-    Train / Validation / Test Split
+1. Data Preparation
+    - Dataset
+    - Train / Validation / Test Split
 
-Model Setup
-    Model
-    Loss
-    Metric
+2. Model Setup
+    - Model
+    - Loss
+    - Metric
 
-Validation & Tuning
-    ModelChecker
-    LearningRateSelector
-    SmallGrid
+3. Validation & Tuning
+    - ModelChecker
+    - LearningRateSelector
+    - SmallGrid
 
-Final Training
-    Trainer.fit()
-    Best Checkpoint
+4. Final Training
+    - Trainer.fit()
+    - Best Checkpoint
 
-Evaluation
-    Evaluator
-    Test Loss
-    Test Metric
+5. Evaluation
+    - Evaluator
+    - Test Loss
+    - Test Metric
 
-Visualization
-    Loss History
-    Metric History
-    Training History
-```
+6. Visualization
+    - Loss History
+    - Metric History
+    - Training History
 
 This example focuses on how the components work together. Detailed parameter descriptions, return values, and error handling belong in the corresponding `docs/api/` pages.
