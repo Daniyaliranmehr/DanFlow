@@ -60,7 +60,7 @@ plot_correlation_heatmap(
 >>> plot_correlation_heatmap(data, figsize=(8, 6))
 ```
 
-![Correlation heatmap](../assets/correlation_heatmap.png){ width="600" }
+![Correlation heatmap](../assets/correlation_heatmap.png){ width="500" }
 
 ### Single-Feature Histogram
 
@@ -81,7 +81,7 @@ plot_histogram(
 >>> plot_histogram(data, column="feature_1", bins=5, figsize=(8, 5))
 ```
 
-![Feature histogram](../assets/histogram.png){ width="600" }
+![Feature histogram](../assets/histogram.png){ width="500" }
 
 ### Multiple Histograms
 
@@ -119,7 +119,7 @@ plot_multi_histograms(
 ... )
 ```
 
-![Multiple histograms](../assets/multi_histograms.png){ width="600" }
+![Multiple histograms](../assets/multi_histograms.png){ width="500" }
 
 ### Single-Feature Box Plot
 
@@ -139,7 +139,7 @@ plot_boxplot(
 >>> plot_boxplot(data, column="feature_2", figsize=(8, 5))
 ```
 
-![Feature box plot](../assets/boxplot.png){ width="600" }
+![Feature box plot](../assets/boxplot.png){ width="500" }
 
 ### Multiple Box Plots
 
@@ -213,7 +213,7 @@ plot_loss_history(
 ... )
 ```
 
-![Loss history](../assets/loss_history.png){ width="600" }
+![Loss history](../assets/loss_history.png){ width="500" }
 
 ### Metric History
 
@@ -237,7 +237,7 @@ plot_metric_history(
 ... )
 ```
 
-![Metric history](../assets/metric_history.png){ width="600" }
+![Metric history](../assets/metric_history.png){ width="500" }
 
 ### Combined Training History
 
@@ -263,7 +263,7 @@ plot_training_history(
 ... )
 ```
 
-![Combined training history](../assets/training_history.png){ width="600" }
+![Combined training history](../assets/training_history.png){ width="500" }
 
 ## Saving Plots
 
