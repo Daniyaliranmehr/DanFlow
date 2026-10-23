@@ -1,0 +1,82 @@
+/* Global DanFlow API directory in Material's right-hand sidebar. */
+.md-sidebar--secondary.df-api-sidebar {
+  width: 12.6rem;
+}
+
+.df-api-sidebar .md-sidebar__scrollwrap {
+  height: calc(100vh - 5.4rem);
+  overflow-y: auto;
+}
+
+.df-api-index {
+  padding: 0.15rem 0.45rem 1.5rem;
+  font-size: 0.67rem;
+  line-height: 1.35;
+}
+
+.df-api-index__heading {
+  margin: 0 0 0.55rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--md-default-fg-color);
+}
+
+.df-api-index__overview {
+  display: block;
+  margin: 0 0 0.7rem;
+  padding: 0.3rem 0.4rem;
+  border-radius: 0.2rem;
+  background: var(--md-code-bg-color);
+  font-weight: 600;
+}
+
+.df-api-index__group {
+  margin: 0.15rem 0 0.4rem;
+}
+
+.df-api-index__group summary {
+  padding: 0.3rem 0.1rem;
+  cursor: pointer;
+  color: var(--md-default-fg-color);
+  font-weight: 700;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.df-api-index__group ul {
+  margin: 0.15rem 0 0.35rem;
+  padding: 0 0 0 0.4rem;
+  list-style: none;
+}
+
+.df-api-index__group li {
+  margin: 0;
+}
+
+.df-api-index__group li a {
+  display: block;
+  padding: 0.19rem 0.35rem;
+  border-radius: 0.2rem;
+  overflow-wrap: anywhere;
+}
+
+.df-api-index__group li a:hover,
+.df-api-index__overview:hover {
+  background: var(--md-code-bg-color);
+  color: var(--md-accent-fg-color);
+}
+
+/* Keep the desktop layout tidy on tablets and phones; the existing left
+   navigation stays controlled by Material and is not modified by this rule. */
+@media screen and (max-width: 76.1875em) {
+  .md-sidebar--secondary.df-api-sidebar {
+    display: none;
+  }
+}
+
+/* Move the API sidebar closer to the right edge */
+@media screen and (min-width: 76.25em) {
+  .md-sidebar--secondary {
+    margin-left: auto;
+    margin-right: -1rem;
+  }
+}

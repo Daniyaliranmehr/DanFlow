@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{# Preserve Material's built-in left navigation exactly as configured. #}
+{% block site_nav %}
+  {{ super() }}
+
+  {# Add a separate, global DanFlow API directory to the right sidebar. #}
+  <div
+    class="md-sidebar md-sidebar--secondary df-api-sidebar"
+    data-md-component="sidebar"
+    data-md-type="api-index"
+  >
+    <div class="md-sidebar__scrollwrap">
+      <div class="md-sidebar__inner">
+        {% include "partials/api-sidebar.html" %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

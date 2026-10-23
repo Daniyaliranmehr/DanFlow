@@ -1,0 +1,59 @@
+/* DanFlow brand colors: dark navy header + a clear cyan accent. */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #111827;
+  --md-primary-fg-color--light: #1f2937;
+  --md-primary-fg-color--dark: #0b1220;
+  --md-accent-fg-color: #43d6d0;
+  --md-typeset-a-color: #087f9f;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #101827;
+  --md-primary-fg-color--light: #1b273a;
+  --md-primary-fg-color--dark: #080e18;
+  --md-accent-fg-color: #43d6d0;
+  --md-typeset-a-color: #61cfe5;
+}
+
+/* Use a light tile behind the transparent gradient mark so it stays readable
+   in the dark header, the navigation drawer, and the home-page heading. */
+.md-header .md-logo img,
+.md-nav__button.md-logo img {
+  box-sizing: border-box;
+  width: 1.8rem;
+  height: 1.8rem;
+  object-fit: contain;
+  padding: 0.14rem;
+  border-radius: 0.42rem;
+  background: #f6f8fc;
+}
+
+/* Keep the GitHub source link as an icon-only control in the top bar. */
+.md-header__source .md-source__repository {
+  display: none;
+}
+
+/* Align the logo with the DanFlow heading on docs/index.md.
+   Add class="danflow-home-logo" to the inline Markdown image. */
+.md-typeset img.danflow-home-logo {
+  display: inline-block;
+  width: 2.9rem;
+  height: 2.9rem;
+  object-fit: contain;
+  box-sizing: border-box;
+  padding: 0.22rem;
+  margin: 0 0.55rem 0 0;
+  vertical-align: -0.65rem;
+  border-radius: 0.65rem;
+  background: #f6f8fc;
+}
+
+/* Make the home title responsive without disturbing other page headings. */
+@media (max-width: 600px) {
+  .md-typeset img.danflow-home-logo {
+    width: 2.25rem;
+    height: 2.25rem;
+    vertical-align: -0.48rem;
+    margin-right: 0.35rem;
+  }
+}

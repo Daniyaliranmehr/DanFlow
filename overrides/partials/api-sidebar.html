@@ -1,0 +1,76 @@
+<nav class="df-api-index" aria-label="DanFlow API directory">
+  <div class="df-api-index__heading">DanFlow API</div>
+  <a class="df-api-index__overview" href="{{ 'api/' | url }}">All API modules</a>
+
+  <details class="df-api-index__group" open>
+    <summary>Data</summary>
+    <ul>
+      <li><a href="{{ 'api/data/' | url }}#extract_zip">extract_zip()</a></li>
+      <li><a href="{{ 'api/data/' | url }}#load_csv">load_csv()</a></li>
+      <li><a href="{{ 'api/data/' | url }}#delimited_to_csv">delimited_to_csv()</a></li>
+    </ul>
+  </details>
+
+  <details class="df-api-index__group" open>
+    <summary>Loss functions</summary>
+    <ul>
+      <li><a href="{{ 'api/losses/' | url }}#adaptive_loss">adaptive_loss()</a></li>
+      <li><a href="{{ 'api/losses/' | url }}#log_cosh_loss">log_cosh_loss()</a></li>
+    </ul>
+  </details>
+
+  <details class="df-api-index__group" open>
+    <summary>Training</summary>
+    <ul>
+      <li><a href="{{ 'api/trainer/' | url }}">Trainer</a></li>
+      <li><a href="{{ 'api-reference/' | url }}#averagemeter">AverageMeter</a></li>
+      <li><a href="{{ 'api/trainer/' | url }}#train_epoch">train_epoch()</a></li>
+      <li><a href="{{ 'api/trainer/' | url }}#validate_epoch">validate_epoch()</a></li>
+      <li><a href="{{ 'api/trainer/' | url }}#fit">fit()</a></li>
+    </ul>
+  </details>
+
+  <details class="df-api-index__group" open>
+    <summary>Evaluation</summary>
+    <ul>
+      <li><a href="{{ 'api/evaluator/' | url }}">Evaluator</a></li>
+      <li><a href="{{ 'api/evaluator/' | url }}#test">test()</a></li>
+    </ul>
+  </details>
+
+  <details class="df-api-index__group" open>
+    <summary>Model checking</summary>
+    <ul>
+      <li><a href="{{ 'api/checker/' | url }}">ModelChecker</a></li>
+      <li><a href="{{ 'api/checker/' | url }}#forward_check">forward_check()</a></li>
+      <li><a href="{{ 'api/checker/' | url }}#backward_check">backward_check()</a></li>
+      <li><a href="{{ 'api/checker/' | url }}#continue_backward">continue_backward()</a></li>
+      <li><a href="{{ 'api/checker/' | url }}#forwardcheckresult">ForwardCheckResult</a></li>
+      <li><a href="{{ 'api/checker/' | url }}#backwardcheckresult">BackwardCheckResult</a></li>
+    </ul>
+  </details>
+
+  <details class="df-api-index__group" open>
+    <summary>Hyperparameter tuning</summary>
+    <ul>
+      <li><a href="{{ 'api/tuner/' | url }}#learningrateselector">LearningRateSelector</a></li>
+      <li><a href="{{ 'api/tuner/' | url }}#search">LearningRateSelector.search()</a></li>
+      <li><a href="{{ 'api/tuner/' | url }}#smallgrid">SmallGrid</a></li>
+      <li><a href="{{ 'api/tuner/' | url }}#search_1">SmallGrid.search()</a></li>
+    </ul>
+  </details>
+
+  <details class="df-api-index__group" open>
+    <summary>Visualization</summary>
+    <ul>
+      <li><a href="{{ 'api/visualization/' | url }}#plot_correlation_heatmap">plot_correlation_heatmap()</a></li>
+      <li><a href="{{ 'api/visualization/' | url }}#plot_histogram">plot_histogram()</a></li>
+      <li><a href="{{ 'api/visualization/' | url }}#plot_multi_histograms">plot_multi_histograms()</a></li>
+      <li><a href="{{ 'api/visualization/' | url }}#plot_boxplot">plot_boxplot()</a></li>
+      <li><a href="{{ 'api/visualization/' | url }}#plot_multi_boxplots">plot_multi_boxplots()</a></li>
+      <li><a href="{{ 'api/visualization/' | url }}#plot_training_history">plot_training_history()</a></li>
+      <li><a href="{{ 'api/visualization/' | url }}#plot_loss_history">plot_loss_history()</a></li>
+      <li><a href="{{ 'api/visualization/' | url }}#plot_metric_history">plot_metric_history()</a></li>
+    </ul>
+  </details>
+</nav>

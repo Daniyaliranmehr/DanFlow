@@ -1,0 +1,174 @@
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+
+# -----------------------------------------------------------------------------
+# Site metadata
+# -----------------------------------------------------------------------------
+site_name: DanFlow
+site_description: Documentation for DanFlow, a Python library for deep learning workflows.
+site_url: https://Daniyaliranmehr.github.io/DanFlow/
+site_author: DanFlow Contributors
+
+# Repository information enables the GitHub source icon in the header.
+repo_name: Daniyaliranmehr/DanFlow
+repo_url: https://daniyaliranmehr.github.io/DanFlow/
+edit_uri: edit/master/docs/
+
+# Set site_url when the documentation is deployed publicly.
+# Example for a GitHub Pages project site:
+# site_url: https://<username>.github.io/<repository>/
+
+# -----------------------------------------------------------------------------
+# Project paths and build behavior
+# -----------------------------------------------------------------------------
+docs_dir: docs
+site_dir: site
+use_directory_urls: true
+strict: true
+
+# Rebuild API documentation when source modules change during development.
+watch:
+  - src
+
+# Keep link and navigation problems visible in strict builds.
+validation:
+  nav:
+    omitted_files: warn
+    not_found: warn
+  links:
+    not_found: warn
+    anchors: warn
+    unrecognized_links: warn
+
+# -----------------------------------------------------------------------------
+# Plugins
+# -----------------------------------------------------------------------------
+plugins:
+  - search
+  - autorefs
+  - mkdocstrings:
+      handlers:
+        python:
+          paths:
+            - src
+          inventories:
+            - https://docs.python.org/3/objects.inv
+          options:
+            docstring_style: google
+            docstring_section_style: list
+            members_order: source
+            show_root_heading: true
+            show_root_toc_entry: true
+            show_signature_annotations: true
+            separate_signature: true
+            show_source: false
+
+# -----------------------------------------------------------------------------
+# Theme
+# -----------------------------------------------------------------------------
+theme:
+  name: material
+  custom_dir: overrides
+  language: en
+  logo: assets/logo.png
+  favicon: assets/danflow-favicon.png
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - toc.integrate
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+  palette:
+    - scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+# -----------------------------------------------------------------------------
+# Markdown extensions
+# -----------------------------------------------------------------------------
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+extra:
+  generator: false
+
+extra_css:
+  - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/extra.js
+
+# Explicit navigation based on the docs/ files currently in the project.
+# If you add, rename, or remove documentation pages, keep this list synchronized.
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting_started/installation.md
+      - Quick Start: getting_started/quick_start.md
+  - Guides:
+      - Data: guides/data.md
+      - Training: guides/training.md
+      - Metrics: guides/metrics.md
+      - Evaluation: guides/evaluation.md
+      - Checkpoints: guides/checkpoints.md
+      - Visualization: guides/visualization.md
+  - Examples:
+      - Data Preparation: examples/data_preparation.md
+      - Training: examples/training.md
+      - Evaluation: examples/evaluation.md
+      - Visualization: examples/visualization.md
+      - Custom Loss: examples/custom_loss.md
+      - End-to-End Workflow: examples/end_to_end.md
+  - API:
+      - Overview: api-reference.md
+      - API Documentation: api/index.md
+      - Data: api/data.md
+      - Loss Functions: api/losses.md
+      - Trainer: api/trainer.md
+      - Evaluator: api/evaluator.md
+      - Model Checker: api/checker.md
+      - Hyperparameter Tuning: api/tuner.md
+      - Visualization: api/visualization.md
+  - Architecture: architecture.md
+  - Troubleshooting: troubleshooting.md
